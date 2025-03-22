@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String  @unique
+  username String @unique
+  firstname String
+  lastname String
+  password String
+  avatar String @db.VarChar(255)
+  money Int @default(0)
+  role String @default("user")
+  verified Boolean @default(false)
+  discord String @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services Service[] @relation("UserServices")
+}
+
+model ServiceList {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  description String? @db.LongText
+  features String? @db.LongText
+  image String @db.VarChar(255)
+  options String @db.LongText
+  type String @db.VarChar(255)
+  offer String? @db.LongText
+  other String? @db.LongText
+  gradientColors String? @db.LongText 
+}
+
+model Service {
+  id Int @id @default(autoincrement())
+  user_id Int @db.Int
+  service_id Int @db.Int
+  type String @db.VarChar(255)
+  buy_date DateTime @db.DateTime
+  expire_date DateTime @db.DateTime
+  expired Boolean @default(false)
+  more_info String @db.LongText
+  price Int 
+  status String 
+    user        User     @relation(fields: [user_id], references: [id], name: "UserServices")
+}
+
+model ResetPassword {
+  id Int @id @default(autoincrement())
+  toke String @db.VarChar(255)
+  token_expire DateTime @db.DateTime
+  email String @db.VarChar(255)
+  createdAt DateTime @default(now())
+}
+
+model Coupons {
+  id Int @id @default(autoincrement())
+  code String @db.VarChar(255) @unique
+  user_id Int @db.Int
+  amount Decimal @db.Decimal(10, 2)
+  expire DateTime @db.DateTime
+  createdAt DateTime @default(now())
+}
+
+model Cdn {
+  id Int @id @default(autoincrement())
+  user_id Int @db.Int
+  url String @db.VarChar(255)
+  type String @db.Text
+  filename String @db.VarChar(255)
+  deletion_date DateTime @db.DateTime
+  delete_hash String @db.VarChar(255)
+  expire DateTime @db.DateTime
+}
+
+model Bans{
+  id Int @id @default(autoincrement())
+  user_id Int @db.Int
+  reason String @db.VarChar(255)
+  createdAt DateTime @default(now())
+}
