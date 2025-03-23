@@ -69,9 +69,10 @@ model ResetPassword {
 model Coupons {
   id Int @id @default(autoincrement())
   code String @db.VarChar(255) @unique
+  discount Float @db.Float
   user_id Int @db.Int
-  amount Decimal @db.Decimal(10, 2)
   expire DateTime @db.DateTime
+  is_active Boolean @default(true)
   createdAt DateTime @default(now())
 }
 

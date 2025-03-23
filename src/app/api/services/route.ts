@@ -19,9 +19,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
 
-  console.log(session);
   const userId = parseInt(session.user.userid, 10)
-  console.log(userId);
 
   try {
     const services = await db.service.findMany({

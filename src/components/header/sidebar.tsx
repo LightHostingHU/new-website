@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import axios from "axios"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 const menuItems = [
     { icon: Home, label: "Áttekintés", href: "/" },
@@ -19,29 +21,30 @@ const menuItems = [
 ]
 
 export function Sidebar() {
+    const { data: session, status } = useSession()
+    const router = useRouter()
     const pathname = usePathname()
     const [permissions, SetPermissions] = useState(null)
     const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false)
 
     useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/sign-in');
+        }
+    }, [status, session, router]);
+
+    useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const username = localStorage.getItem('username');
-                // const response = await axios.get(`/api/users/permissions`, {
-                //     params: {
-                //         username: username
-                //     }
-                // });
-                // console.log(response.data.permission)
-                // if (response.status === 200) {
-                //     SetPermissions(response.data.permission);
-                // }
+                const response = await fetch("/api/users/permissions");
+                const data = await response.json();
+                SetPermissions(data.permissions);
             } catch (error) {
-                console.error('Error fetching permissions:', error)
+                console.error("Error fetching permissions:", error);
             }
         }
         fetchPermissions()
-    })
+    }, [])
 
     return (
         <div className="flex flex-col h-full bg-slate-900 border-r border-zinc-700">
@@ -80,10 +83,10 @@ export function Sidebar() {
                                     animate={{ x: 0 }}
                                     whileTap={{ scale: 0.9 }}
                                     className="ml-6 mt-2 space-y-2">
-                                    <Link href="/dashboard/admin/felhasznalok" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
+                                    <Link href="/admin/felhasznalok" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
                                         Felhasználók kezelése
                                     </Link>
-                                    <Link href="/dashboard/admin/beallitasok" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
+                                    <Link href="/admin/beallitasok" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
                                         Admin beállítások
                                     </Link>
                                 </motion.div>
