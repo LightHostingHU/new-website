@@ -40,11 +40,19 @@ export function Sidebar() {
                 const data = await response.json();
                 SetPermissions(data.permissions);
             } catch (error) {
-                console.error("Error fetching permissions:", error);
+                console.error("Permissions fetch error:", error);
             }
         }
-        fetchPermissions()
-    }, [])
+        
+        if (status === 'authenticated') {
+            fetchPermissions();
+            
+            // Periodikusan ellenőrizzük a jogosultságokat
+            const interval = setInterval(fetchPermissions, 10000);
+            
+            return () => clearInterval(interval);
+        }
+    }, [status]);
 
     return (
         <div className="flex flex-col h-full bg-slate-900 border-r border-zinc-700">
@@ -86,7 +94,7 @@ export function Sidebar() {
                                     <Link href="/admin/felhasznalok" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
                                         Felhasználók kezelése
                                     </Link>
-                                    <Link href="/admin/beallitasok" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
+                                    <Link href="/admin" className="block px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md">
                                         Admin beállítások
                                     </Link>
                                 </motion.div>
@@ -112,4 +120,3 @@ export function Sidebar() {
         </div>
     )
 }
-

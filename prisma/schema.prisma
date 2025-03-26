@@ -93,3 +93,11 @@ model Bans{
   reason String @db.VarChar(255)
   createdAt DateTime @default(now())
 }
+
+model News {
+  id Int @id @default(autoincrement())
+  title String @db.VarChar(255)
+  description String @db.LongText
+  admin_id Int @db.Int
+  createdAt DateTime @default(now())
+}

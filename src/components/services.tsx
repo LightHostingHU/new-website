@@ -5,30 +5,50 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Cpu, HardDrive, Wifi, Server } from "lucide-react"
 import { motion } from "framer-motion"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import DashboardLayout from "./layout/DashboardLayout"
 
 export function Services() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const [services, setServices] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                const response = await fetch("/api/services", {
-                    method: "GET",
-                });
-                const data = await response.json();
-                setServices(data);
-            } catch (error) {
-                console.error("Error fetching services:", error);
-            }
-        };
+        if (status === "unauthenticated") {
+            router.push("/sign-in");
+        }
+        if (status === "authenticated") {
+            const fetchServices = async () => {
+                try {
+                    setIsLoading(true);
+                    const response = await fetch("/api/services", {
+                        method: "GET",
+                    });
+                    const data = await response.json();
+                    setServices(data);
+                    setIsLoading(false);
+                } catch (error) {
+                    setIsLoading(false);
+                }
+            };
 
-        fetchServices();
-    }, []); 
+            fetchServices();
+        }
+    }, [status, router]);
 
+    if (isLoading) {
+        return (
+            <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
     return (
         <div className="bg-slate-900 min-h-screen">
             <div className="container mx-auto py-16">
-                <motion.h1 
+                <motion.h1
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}

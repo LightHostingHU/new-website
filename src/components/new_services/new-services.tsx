@@ -44,28 +44,30 @@ const NewServices = () => {
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/sign-in');
-        } 
+        }
     }, [status, session, router]);
 
     useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                const response = await fetch(`/api/services/list`);
-                const data: Service[] = await response.json();
-                if (Array.isArray(data)) {
-                setServices(data);
-                } else {
-                console.error("Invalid data format:", data);
+        if (status === 'authenticated') {
+            const fetchServices = async () => {
+                try {
+                    const response = await fetch(`/api/services/list`);
+                    const data: Service[] = await response.json();
+                    if (Array.isArray(data)) {
+                        setServices(data);
+                    } else {
+                        console.error("Invalid data format:", data);
+                    }
+                } catch (error) {
+                    console.error("Error fetching services:", error);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (error) {
-                console.error("Error fetching services:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+            };
 
-        fetchServices();
-    }, []);
+            fetchServices();
+        }
+    }, [status]);
 
     if (loading) {
         return (
@@ -83,7 +85,7 @@ const NewServices = () => {
     }
 
     const filteredServices = selectedCategory ? services.filter(service => service.type === selectedCategory) : [];
-    
+
 
     return (
         <div className="bg-gradient-to-b from-slate-900 to-slate-800 min-h-full">

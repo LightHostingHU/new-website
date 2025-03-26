@@ -21,9 +21,13 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner"
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useSession } from "next-auth/react";
 
 
 export default function FelhasznalokPage() {
+    const { status } = useSession();
+    const router = useRouter()
+    const [isLoading, setIsLoading] = useState(true);
     const [users, setUsers] = useState<{ id: number; username: string; name: string; email: string; permission: string; suspended: boolean; balance?: number }[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortField, setSortField] = useState<keyof User>("name");
@@ -32,24 +36,32 @@ export default function FelhasznalokPage() {
     const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
     const [balance, setBalance] = useState(0);
     const [newBalance, setNewBalance] = useState("");
-    const router = useRouter();
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await axios.get<{ id: number; username: string; name: string; email: string; permission: string; suspended: boolean; balance?: number }[]>('/api/users');
-                setUsers(response.data);
-                toast('Adminisztrátor', {
-                    description: "Sikeresen betöltődött az felhasználói lista!",
-                });
-            } catch (error) {
-                toast('Adminisztrátor', {
-                    description: "Hibatörtént a felhasználók betöltésekor!",
-                });
-            }
-        };
-        fetchUsers();
-    }, []);
+        if (status === "unauthenticated") {
+            router.push("/sign-in")
+        } else if (status === "authenticated") {
+            const fetchUsers = async () => {
+                try {
+                    setIsLoading(true);
+                    const response = await axios.get<{ id: number; username: string; name: string; email: string; permission: string; suspended: boolean; balance?: number }[]>('/api/users');
+                    setUsers(response.data);
+                    toast('Adminisztrátor', {
+                        description: "Sikeresen betöltődött az felhasználói lista!",
+                    });
+                    setIsLoading(false);
+                } catch (error) {
+                    setIsLoading(false);
+                    toast('Adminisztrátor', {
+                        description: "Hibatörtént a felhasználók betöltésekor!",
+                    });
+                }
+            };
+            fetchUsers();
+        }
+        
+    }, [status, router]);
+
     const handleSort = (field: keyof User) => {
         if (sortField === field) {
             setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -154,6 +166,14 @@ export default function FelhasznalokPage() {
             return bValue.localeCompare(aValue);
         }
     });
+
+    if (isLoading) {
+        return <DashboardLayout>
+            <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        </DashboardLayout>
+    }
 
     return (
         <DashboardLayout>

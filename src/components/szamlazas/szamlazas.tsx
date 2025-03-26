@@ -8,8 +8,9 @@ import { useEffect, useState } from "react"
 import { loadStripe } from "@stripe/stripe-js"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { toast } from 'sonner';
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import showToast from "../Toast"
+import { useSession } from "next-auth/react"
 
 const invoices = [
     { id: 1, date: "2023-06-01", amount: 15000, status: "Fizetve" },
@@ -24,26 +25,36 @@ if (!stripeKey) {
 const stripPromise = loadStripe(stripeKey);
 
 export function Szamlazas() {
+    const { status } = useSession();
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
     const [balance, setBalance] = useState(0)
     const [amount, setAmount] = useState("")
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [toastShown, setToastShown] = useState(false);
     const [toastMessage, setToastMessage] = useState<{ type?: "success" | "danger" | "warning"; text: string } | null>(null);
 
     useEffect(() => {
-        const fetchBalance = async () => {
-            try {
-                const response = await fetch("/api/balance", {
-                    method: "GET",
-                });
-                const data = await response.json();
-                setBalance(data.balance);
-            } catch (error) {
-                console.error("Error fetching balance:", error);
-            }
-        };
-        fetchBalance();
-    }, [balance]);
+        if (status === "unauthenticated") {
+            router.push("/sign-in");
+        }
+        if (status === "authenticated") {
+            const fetchBalance = async () => {
+                try {
+                    setIsLoading(true);
+                    const response = await fetch("/api/balance", {
+                        method: "GET",
+                    });
+                    const data = await response.json();
+                    setBalance(data.balance);
+                    setIsLoading(false);
+                } catch (error) {
+                    setIsLoading(true);
+                }
+            };
+            fetchBalance();
+        }
+    }, [status, balance]);
+
     const handleDialogOpen = () => {
         if (Number(amount) < 175) {
             showToast({
@@ -86,10 +97,37 @@ export function Szamlazas() {
         }
     }
 
-    const formatNumber = (num: number) => {
+    const handlePayPalCheckout = async () => {
+        try {
+            const response = await fetch("/api/create-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount }),
+            });
+
+            const data = await response.json();
+            if (!data.id) throw new Error("Failed to create PayPal order");
+
+            window.location.href = `https://www.sandbox.paypal.com/checkoutnow?token=${data.id}`;
+        } catch (error) {
+            console.error("PayPal Checkout Error:", error);
+        }
+    };
+
+    const formatNumber = (num: number | undefined) => {
+        if (typeof num !== "number" || isNaN(num)) {
+            console.error("formatNumber received invalid value:", num);
+            return "0";
+        }
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     };
 
+    if (isLoading) {
+        return <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+    }
+    
     return (
         <div className="bg-slate-900 min-h-screen">
             <div className="container mx-auto py-10 px-4">
@@ -140,22 +178,12 @@ export function Szamlazas() {
                                     <Button
                                         className="bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-3 h-14 text-lg"
                                         onClick={() => {
-                                            handleCheckout();
+                                            handlePayPalCheckout();
                                             setDialogOpen(false);
                                         }}
                                     >
                                         <Wallet className="w-6 h-6" />
                                         <span>PayPal</span>
-                                    </Button>
-                                    <Button
-                                        className="bg-purple-600 hover:bg-purple-700 transition-colors flex items-center justify-center space-x-3 h-14 text-lg"
-                                        onClick={() => {
-                                            handleCheckout();
-                                            setDialogOpen(false);
-                                        }}
-                                    >
-                                        <Bitcoin className="w-6 h-6" />
-                                        <span>Kriptovaluta</span>
                                     </Button>
                                 </div>
                                 <DialogFooter className="space-x-4 pt-4 border-t border-primary/20">

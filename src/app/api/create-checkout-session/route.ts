@@ -14,7 +14,6 @@ interface RequestBody {
 export async function POST(req: Request, res: Response): Promise<Response> {
     try {
         const body: RequestBody = await req.json();
-        console.log("Parsed Request Body:", body);
         const { amount } = body;
 
         if (!amount || isNaN(amount)) {

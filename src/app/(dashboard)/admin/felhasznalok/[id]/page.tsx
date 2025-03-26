@@ -28,7 +28,7 @@ interface Coupon {
 
 "use client";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,8 +43,12 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useSession } from "next-auth/react";
 
 export default function UserPage() {
+    const { status } = useSession();
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
     const { id } = useParams();
     const [showBanModal, setShowBanModal] = useState(false);
     const [banReason, setBanReason] = useState("");
@@ -67,40 +71,43 @@ export default function UserPage() {
     });
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get(`/api/users/${id}`);
-                const data = (response.data as User[])[0];
+        if (status === "unauthenticated") {
+            router.push("/sign-in")
+        } else if (status === "authenticated") {
+            const fetchUser = async () => {
+                try {
+                    setIsLoading(true);
+                    const response = await axios.get(`/api/users/${id}`);
+                    const data = (response.data as User[])[0];
 
-                setUser({
-                    firstname: data.firstname || "",
-                    lastname: data.lastname || "",
-                    email: data.email || "",
-                    username: data.username || "",
-                    permission: data.permission || "",
-                    services: data.services || [],
-                    history: data.history || [],
-                    coupons: data.coupons || []
-                });
+                    setUser({
+                        firstname: data.firstname || "",
+                        lastname: data.lastname || "",
+                        email: data.email || "",
+                        username: data.username || "",
+                        permission: data.permission || "",
+                        services: data.services || [],
+                        history: data.history || [],
+                        coupons: data.coupons || []
+                    });
 
-                const couponsResponse = await axios.get(`/api/users/${id}/coupons`);
-                console.log(couponsResponse.data);
-                setUser(prev => ({
-                    ...prev,
-                    coupons: Array.isArray(couponsResponse.data) ? couponsResponse.data as Coupon[] : []
-                }));
+                    const couponsResponse = await axios.get(`/api/users/${id}/coupons`);
+                    setUser(prev => ({
+                        ...prev,
+                        coupons: Array.isArray(couponsResponse.data) ? couponsResponse.data as Coupon[] : []
+                    }));
 
-                console.log(user.coupons);
-
-            } catch (error) {
-                toast.error("Hiba!", {
-                    description: "Nem sikerült betölteni a felhasználó adatait",
-                });
-            }
-        };
-
-        fetchUser();
-    }, [id]);
+                    setIsLoading(false);
+                } catch (error) {
+                    setIsLoading(false);
+                    toast.error("Hiba!", {
+                        description: "Nem sikerült betölteni a felhasználó adatait",
+                    });
+                }
+            };
+            fetchUser();
+        }
+    }, [id, status, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -171,6 +178,16 @@ export default function UserPage() {
             });
         }
     };
+
+    if (isLoading) {
+        return (
+            <DashboardLayout>
+                <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout>
