@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ConfigurationModal } from "@/components/new_services/configuration-modal";
+import { ConfigurationModal } from "@/components/(services)/configuration-modal";
 import { Check, Gamepad, Server, Globe, ArrowLeft, Database, Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation"
+import { useTheme } from "next-themes";
 
 interface ServiceOption {
     label: string;
@@ -34,6 +35,7 @@ interface Service {
 const NewServices = () => {
     const { data: session, status } = useSession()
     const router = useRouter()
+    const { theme } = useTheme();
 
     const [services, setServices] = useState<any[]>([]);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -71,12 +73,12 @@ const NewServices = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+            <div className={`flex items-center justify-center min-h-screen ${theme === 'dark' ? 'bg-gradient-to-b from-slate-900 to-slate-800' : 'bg-gradient-to-b from-gray-100 to-white'}`}>
                 <div className="animate-pulse flex flex-col items-center">
-                    <div className="h-12 w-48 bg-slate-700 rounded-lg mb-8"></div>
+                    <div className={`h-12 w-48 ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-300'} rounded-lg mb-8`}></div>
                     <div className="grid grid-cols-3 gap-8">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="h-64 w-64 bg-slate-700 rounded-xl"></div>
+                            <div key={i} className={`h-64 w-64 ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-300'} rounded-xl`}></div>
                         ))}
                     </div>
                 </div>
@@ -86,11 +88,10 @@ const NewServices = () => {
 
     const filteredServices = selectedCategory ? services.filter(service => service.type === selectedCategory) : [];
 
-
     return (
-        <div className="bg-gradient-to-b from-slate-900 to-slate-800 min-h-full">
+        <div className={`${theme === 'dark' ? 'bg-gradient-to-b from-slate-900 to-slate-800' : 'bg-gradient-to-b from-gray-100 to-white'} min-h-full`}>
             <div className="container mx-auto py-10 px-4">
-                <h1 className="text-4xl font-bold mb-6 text-white text-center">Szolgáltatások</h1>
+                <h1 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-center`}>Szolgáltatások</h1>
 
                 {!selectedCategory ? (
                     <div className="mb-12">
@@ -182,13 +183,13 @@ const NewServices = () => {
                         <div className="flex items-center justify-between mb-8 relative">
                             <Button
                                 variant="ghost"
-                                className="text-white hover:bg-slate-800/50 absolute left-0"
+                                className={`${theme === 'dark' ? 'text-white hover:bg-slate-800/50' : 'text-gray-900 hover:bg-gray-200/50'} absolute left-0`}
                                 onClick={() => setSelectedCategory(null)}
                             >
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Vissza
                             </Button>
-                            <h2 className="text-3xl font-bold text-white w-full text-center">
+                            <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} w-full text-center`}>
                                 {selectedCategoryName}
                             </h2>
                         </div>
@@ -196,11 +197,10 @@ const NewServices = () => {
                             {Array.isArray(filteredServices) && filteredServices.map((service: Service) => (
                                 <Card
                                     key={service.id}
-                                    className="overflow-hidden transition-all hover:shadow-lg hover:translate-y-[-4px] flex flex-col bg-white/5 backdrop-blur-sm border-slate-700"
+                                    className={`overflow-hidden transition-all hover:shadow-lg hover:translate-y-[-4px] flex flex-col ${theme === 'dark' ? 'bg-white/5 backdrop-blur-sm border-slate-700' : 'bg-white border-gray-200'}`}
                                 >
                                     <CardHeader
-                                        className={`bg-gradient-to-r from-blue-600 to-indigo-600
-                                            text-white`}
+                                        className={`bg-gradient-to-r from-blue-600 to-indigo-600 text-white`}
                                         style={{ minHeight: "150px" }}
                                     >
                                         <CardTitle className="text-2xl flex items-center gap-2">
@@ -213,7 +213,7 @@ const NewServices = () => {
                                             {service.description}
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="pt-6 flex-grow text-white">
+                                    <CardContent className={`pt-6 flex-grow ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                         <p className="text-3xl font-bold mb-4">{service.price}</p>
                                         <ul className="space-y-2">
                                             {service.features &&
@@ -226,7 +226,7 @@ const NewServices = () => {
                                                 ))}
                                         </ul>
                                     </CardContent>
-                                    <CardFooter className="border-t border-slate-700 pt-4">
+                                    <CardFooter className={`border-t ${theme === 'dark' ? 'border-slate-700' : 'border-gray-200'} pt-4`}>
                                         <Button
                                             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300"
                                             onClick={() => setSelectedService(service)}
@@ -267,12 +267,14 @@ const CategoryCard = ({
     gradient,
     onClick,
 }: CategoryCardProps) => {
+    const { theme } = useTheme();
+    
     return (
         <div
             className={`bg-gradient-to-br ${gradient} relative p-8 text-white rounded-xl shadow-xl transition-all cursor-pointer hover:shadow-2xl hover:scale-105 transform duration-500 h-[250px] w-[300px] overflow-hidden group`}
             onClick={onClick}
         >
-            <div className="absolute top-0 left-0 right-0 bottom-0 z-0 bg-black/20 rounded-xl backdrop-blur-sm group-hover:bg-black/10 transition-all duration-500"></div>
+            <div className={`absolute top-0 left-0 right-0 bottom-0 z-0 ${theme === 'dark' ? 'bg-black/20' : 'bg-black/10'} rounded-xl backdrop-blur-sm group-hover:bg-black/10 transition-all duration-500`}></div>
             <div className="relative z-10 flex flex-col items-center">
                 <div className="mb-6 transform group-hover:scale-110 transition-transform duration-500">{icon}</div>
                 <h3 className="text-2xl font-bold mb-3 group-hover:text-glow">{title}</h3>

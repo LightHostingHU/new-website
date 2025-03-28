@@ -118,7 +118,6 @@ export default function FelhasznalokPage() {
 
     const handleBalance = async (user: SelectedUser): Promise<void> => {
         try {
-            console.log(user)
             const balance_response = await axios.get<number>(`/api/users/${user.id}/balance`);
             setBalance(balance_response.data);
             setSelectedUser(user);
@@ -128,7 +127,6 @@ export default function FelhasznalokPage() {
 
     const handleBalanceUpdate = async () => {
         try {
-            console.log(newBalance)
             if (selectedUser) {
                 await axios.put(`/api/users/${selectedUser.id}/balance`, { money: newBalance });
             }

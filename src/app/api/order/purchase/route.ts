@@ -30,8 +30,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log(userBalance)
-
     if (!userBalance || userBalance.money < price) {
       return NextResponse.json(
         { success: false, message: "Nincs elegendő pénz." },

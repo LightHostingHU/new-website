@@ -112,6 +112,11 @@ const SignInForm = () => {
                   Bejelentkezés
                 </Button>
               </form>
+              <p className='text-center text-sm text-gray-600 dark:text-gray-400 mt-6'>
+                <Link className='text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold hover:underline transition-all duration-200' href='/forgot-password'>
+                  Elfelejtetted a jelszavadat?
+                </Link>
+              </p>
               <div className='mx-auto my-6 flex w-full items-center justify-evenly before:mr-4 before:block before:h-px before:flex-grow before:bg-gray-300 dark:before:bg-gray-600 after:ml-4 after:block after:h-px after:flex-grow after:bg-gray-300 dark:after:bg-gray-600'>
                 <span className="text-gray-500 dark:text-gray-400">vagy</span>
               </div>

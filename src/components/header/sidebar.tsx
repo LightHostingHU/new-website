@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Server, Users, CreditCard, Bell, Settings, BarChart, MessageSquare, Monitor, ShoppingCart, ChevronDown } from "lucide-react"
+import { Home, Server, Users, CreditCard, Bell, Settings, BarChart, MessageSquare, Monitor, ShoppingCart, ChevronDown, Sun, Moon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 import axios from "axios"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
 
 const menuItems = [
     { icon: Home, label: "Áttekintés", href: "/" },
@@ -26,6 +27,7 @@ export function Sidebar() {
     const pathname = usePathname()
     const [permissions, SetPermissions] = useState(null)
     const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false)
+    const { theme, setTheme } = useTheme()
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -47,7 +49,6 @@ export function Sidebar() {
         if (status === 'authenticated') {
             fetchPermissions();
             
-            // Periodikusan ellenőrizzük a jogosultságokat
             const interval = setInterval(fetchPermissions, 10000);
             
             return () => clearInterval(interval);
@@ -55,11 +56,22 @@ export function Sidebar() {
     }, [status]);
 
     return (
-        <div className="flex flex-col h-full bg-slate-900 border-r border-zinc-700">
+        <div className="flex flex-col h-full bg-white dark:bg-slate-900 border-r border-zinc-700">
             <div className="p-6">
-                <h2 className="text-2xl font-bold text-primary mb-6">LightHosting
-
-                </h2>
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-primary">LightHosting</h2>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    >
+                        {theme === "dark" ? (
+                            <Sun className="h-5 w-5" />
+                        ) : (
+                            <Moon className="h-5 w-5" />
+                        )}
+                    </Button>
+                </div>
                 <nav className="space-y-2">
                     {menuItems.map((item) => (
                         <Link

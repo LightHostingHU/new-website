@@ -4,6 +4,24 @@ import { db } from "./db";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcrypt";
 import { toast } from "sonner";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+
+
+export function generateToken(): string {
+  return crypto.randomBytes(32).toString('hex')
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, 12)
+}
+
+export async function verifyPassword(
+  password: string,
+  hashedPassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(password, hashedPassword)
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
@@ -23,14 +41,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        console.log('credentials', credentials);
 
         if (!credentials?.identifier || !credentials?.password) {
-          console.log('Lefut')
           return null;
         }
-
-        console.log('Left')
 
         const existingUser = await db.user.findFirst({
           where: {
