@@ -57,6 +57,8 @@ model Service {
   more_info String @db.LongText
   price Int 
   status String 
+  pterodactyl_id String?
+  
     user        User     @relation(fields: [user_id], references: [id], name: "UserServices")
 }
 

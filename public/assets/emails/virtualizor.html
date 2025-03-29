@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900');
+      body { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background-color: #f3f4f6; }
+      .wrapper { width: 100%; max-width: 600px; margin: 0 auto; }
+      .header { background-color: #7c3aed; padding: 4px 0; }
+      .logo-container { background-color: #ffffff; padding: 16px 0; text-align: center; }
+      .logo { width: 64px; height: auto; }
+      .content { background-color: #ffffff; padding: 20px 40px; margin: 8px 0; }
+      .title { font-size: 24px; font-weight: bold; color: #4b5563; text-align: center; margin-bottom: 16px; }
+      .text { color: #4b5563; font-size: 16px; line-height: 1.5; }
+      .footer { background-color: #1f2937; padding: 20px 0; }
+      .social-links { text-align: center; padding: 24px 0; }
+      .social-icon { width: 32px; height: 32px; margin: 0 12px; }
+      .footer-text { color: #9ca3af; font-size: 14px; text-align: center; padding: 0 40px; }
+      .footer-divider { border-top: 1px solid #4b5563; margin: 20px 40px; }
+      .copyright { color: #9ca3af; font-size: 14px; text-align: center; padding: 20px 0; }
+      a { color: #3b82f6; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+      <div class="header">
+          <div style="border-top: 4px solid #7c3aed;"></div>
+      </div>
+
+      <div class="logo-container">
+          <a href="https://lighthosting.hu" target="_blank">
+              <img src="https://cdn.lighthosting.hu/services/images/logo_mini.png" alt="Logo" class="logo">
+          </a>
+      </div>
+
+      <div class="content">
+          <h1 class="title">{{title}}</h1>
+          <div class="text">
+              Kedves {{fname}} {{lname}}!
+              <p>A fiókod sikeresen létrehozva. A belépési adataid a vps kezelő felületre:</p>
+              <p></p>
+              <p>Email: {{email}}</p>
+              <p>Jelszó: {{newpass}}</p>
+              <p>Link: <a href="https://vm.lighthosting.hu:4083/">https://vm.lighthosting.hu:4083/</a></p>
+          </div>
+      </div>
+
+      <div class="footer">
+          <div style="border-top: 4px solid #7c3aed;"></div>
+          <div class="social-links">
+              <a href="https://dc.lighthosting.hu/" target="_blank">
+                  <img src="https://cdn.lighthosting.hu/services/images/discord.png" alt="Discord" class="social-icon">
+              </a>
+              <a href="https://fb.lighthosting.hu/" target="_blank">
+                  <img src="https://cdn.lighthosting.hu/services/images/facebook.png" alt="Facebook" class="social-icon">
+              </a>
+              <a href="https://ig.lighthosting.hu/" target="_blank">
+                  <img src="https://cdn.lighthosting.hu/services/images/instagram.png" alt="Instagram" class="social-icon">
+              </a>
+          </div>
+
+          <div class="footer-text">
+              Ez egy automatikusan generált üzenet, kérünk, hogy ne válaszolj erre az e-mailre. Ha kérdésed van, vedd fel a kapcsolatot velük itt: <a href="mailto:info@lighthosting.hu">info@lighthosting.hu</a>
+          </div>
+
+          <div class="footer-divider"></div>
+
+          <div class="copyright">
+              LightHosting © 2025
+          </div>
+      </div>
+  </div>
+</body>
+</html>

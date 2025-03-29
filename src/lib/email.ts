@@ -1,5 +1,7 @@
+import { readFileSync } from "fs";
 import { getResetPasswordEmailTemplate } from "./(templates)/(password)/email-template";
 import nodemailer from "nodemailer";
+import path from "path";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
@@ -18,12 +20,12 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const html = getResetPasswordEmailTemplate({
     resetLink,
     supportEmail: process.env.SUPPORT_EMAIL || "support@example.com",
-    appName: process.env.APP_NAME || "Our App",
+    appName: process.env.APP_NAME,
   });
 
   try {
     await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM || "Our App"}" <${process.env.EMAIL_SERVER_USER}>`,
+      from: `"${process.env.EMAIL_FROM}" <${process.env.EMAIL_SERVER_USER}>`,
       to: email,
       subject: `Password Reset Request for ${process.env.APP_NAME || "Our App"}`,
       html,
@@ -34,4 +36,38 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     console.error("Error sending email:", error);
     throw new Error("Failed to send email");
   }
+}
+
+export async function sendVirtualizorRegistrationEmail(title: string, email: string, fname: string, lname: string, newpass: string) {
+  try {
+    const templatePath = path.join(
+      process.cwd(),
+      "public",
+      "assets",
+      "emails",
+      "virtualizor.html"
+    );
+
+    const emailHtml = replace(
+      readFileSync(templatePath, "utf-8"),
+      {title, fname, lname, newpass, email }
+    );
+
+    await transporter.sendMail({
+      from: `"${process.env.EMAIL_FROM}" <${process.env.EMAIL_SERVER_USER}>`,
+      to: email,
+      subject: `Fiók létrehozása`,
+      html: emailHtml,
+    });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Failed to send email");
+  }
+}
+
+function replace(template: string, values: { [key: string]: string }): string {
+  return Object.entries(values).reduce(
+    (result, [key, value]) => result.replace(new RegExp(`{{${key}}}`, "g"), value),
+    template
+  );
 }

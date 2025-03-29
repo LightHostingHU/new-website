@@ -30,7 +30,6 @@ export function Settings() {
 
     useEffect(() => {
         fetchUserData()
-        console.log(userData)
     }, [])
 
     const fetchUserData = async () => {
@@ -78,7 +77,6 @@ export function Settings() {
                 confirmPassword: ""
             })
         } catch (error) {
-            console.log(error)
             toast.error('Hiba a módosítás során!')
         }
     }

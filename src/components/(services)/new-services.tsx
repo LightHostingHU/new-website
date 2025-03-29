@@ -32,13 +32,27 @@ interface Service {
     gradientColors: string;
 }
 
+interface LocalService {
+    id: string;
+    name: string;
+    description: string;
+    features: string;
+    price?: number;
+    image: string;
+    options: ServiceOption[];
+    type: string;
+    offer: string;
+    other: string;
+    gradientColors: string;
+}
+
 const NewServices = () => {
     const { data: session, status } = useSession()
     const router = useRouter()
     const { theme } = useTheme();
 
     const [services, setServices] = useState<any[]>([]);
-    const [selectedService, setSelectedService] = useState<Service | null>(null);
+    const [selectedService, setSelectedService] = useState<LocalService | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
@@ -99,54 +113,6 @@ const NewServices = () => {
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0 }}
-                            >
-                                <CategoryCard
-                                    title="Web"
-                                    description="Weboldal és alkalmazás szolgáltatások"
-                                    icon={<Globe className="h-12 w-12" />}
-                                    gradient="from-blue-500 to-cyan-400"
-                                    onClick={() => {
-                                        setSelectedCategory("web");
-                                        setSelectedCategoryName("Webszerver");
-                                    }}
-                                />
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0.2 }}
-                            >
-                                <CategoryCard
-                                    title="Dedikált szerver"
-                                    description="Nagy teljesítményű dedikált szerverek"
-                                    icon={<Server className="h-12 w-12" />}
-                                    gradient="from-purple-500 to-indigo-500"
-                                    onClick={() => {
-                                        setSelectedCategory("dedikált");
-                                        setSelectedCategoryName("Dedikált szervergép");
-                                    }}
-                                />
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0.4 }}
-                            >
-                                <CategoryCard
-                                    title="Egyéb"
-                                    description="Speciális és egyedi szolgáltatások"
-                                    icon={<Database className="h-12 w-12" />}
-                                    gradient="from-amber-500 to-orange-500"
-                                    onClick={() => {
-                                        setSelectedCategory("other");
-                                        setSelectedCategoryName("Egyéb");
-                                    }}
-                                />
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.6 }}
                             >
                                 <CategoryCard
@@ -173,6 +139,56 @@ const NewServices = () => {
                                     onClick={() => {
                                         setSelectedCategory("game");
                                         setSelectedCategoryName("Játékszerver");
+                                    }}
+                                />
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                            >
+                                <CategoryCard
+                                    title="Dedikált szerver"
+                                    description="Nagy teljesítményű dedikált szerverek"
+                                    icon={<Server className="h-12 w-12" />}
+                                    gradient="from-purple-500 to-indigo-500"
+                                    onClick={() => {
+                                        setSelectedCategory("dedikált");
+                                        setSelectedCategoryName("Dedikált szervergép");
+                                    }}
+                                />
+                            </motion.div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-8">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0 }}
+                            >
+                                <CategoryCard
+                                    title="Webtárhely"
+                                    description="Weboldal és alkalmazás szolgáltatások"
+                                    icon={<Globe className="h-12 w-12" />}
+                                    gradient="from-blue-500 to-cyan-400"
+                                    onClick={() => {
+                                        setSelectedCategory("web");
+                                        setSelectedCategoryName("Webszerver");
+                                    }}
+                                />
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                            >
+                                <CategoryCard
+                                    title="Egyéb"
+                                    description="Speciális és egyedi szolgáltatások"
+                                    icon={<Database className="h-12 w-12" />}
+                                    gradient="from-amber-500 to-orange-500"
+                                    onClick={() => {
+                                        setSelectedCategory("other");
+                                        setSelectedCategoryName("Egyéb");
                                     }}
                                 />
                             </motion.div>
@@ -241,11 +257,13 @@ const NewServices = () => {
                 )}
 
                 {selectedService && (
-                    <ConfigurationModal
-                        service={selectedService}
-                        isOpen={!!selectedService}
-                        onClose={() => setSelectedService(null)}
-                    />
+                    <>
+                        <ConfigurationModal
+                            service={selectedService as any}
+                            isOpen={!!selectedService}
+                            onClose={() => setSelectedService(null)}
+                        />
+                    </>
                 )}
             </div>
         </div>
@@ -271,7 +289,7 @@ const CategoryCard = ({
     
     return (
         <div
-            className={`bg-gradient-to-br ${gradient} relative p-8 text-white rounded-xl shadow-xl transition-all cursor-pointer hover:shadow-2xl hover:scale-105 transform duration-500 h-[250px] w-[300px] overflow-hidden group`}
+            className={`bg-gradient-to-br ${gradient} relative p-8 text-white rounded-xl shadow-xl transition-all cursor-pointer hover:shadow-2xl hover:scale-105 transform duration-500 h-[250px] min-w-[300px] overflow-hidden group`}
             onClick={onClick}
         >
             <div className={`absolute top-0 left-0 right-0 bottom-0 z-0 ${theme === 'dark' ? 'bg-black/20' : 'bg-black/10'} rounded-xl backdrop-blur-sm group-hover:bg-black/10 transition-all duration-500`}></div>

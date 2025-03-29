@@ -15,8 +15,6 @@ export function Header() {
             try {
                 const response = await fetch("/api/user/profile-picture");
                 const data = await response.json();
-
-                console.log(response)
                 if (data.avatar) {
                     setAvatar(data.avatar);
                 }
@@ -36,7 +34,7 @@ export function Header() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
                                 <Avatar>
-                                    <AvatarImage src={avatar || "/placeholder-avatar.jpg"} alt="Avatar" />
+                                    <AvatarImage src={avatar ?? undefined} alt="Avatar" />
                                     <AvatarFallback>U</AvatarFallback>
                                 </Avatar>
                             </Button>

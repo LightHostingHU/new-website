@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation"
+import { toast } from "sonner";
 
 interface Coupon {
     code: string;
@@ -61,11 +62,16 @@ interface ServiceOption {
     default?: number;
 }
 
+interface ServiceOther {
+    variables?: Record<string, string | number>;
+}
+
 interface Service {
     id: string;
     name: string;
     type: string;
     options: ServiceOption[];
+    other: ServiceOther | ServiceOther[]; 
 }
 
 interface CategorizedOptions {
@@ -76,11 +82,13 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
     const { data: session, status } = useSession()
     const router = useRouter()   
     const [config, setConfig] = useState<Record<string, number | string>>({});
+    const [other, setOther] = useState<Record<string, string>>({});
     const [price, setPrice] = useState<number>(0);
     const [couponInput, setCouponInput] = useState<string>("");
     const [coupon, setCoupon] = useState<Coupon | null>(null);
     const [couponApplied, setCouponApplied] = useState<boolean>(false);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [errors, setErrors] = useState<Record<string, boolean> | null>(null);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -89,12 +97,28 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
     }, [status, session, router]);
 
     useEffect(() => {
-        
+        // Az options objektumot inicializáljuk
         const initialConfig: Record<string, number | string> = {};
         service.options.forEach((option) => {
-            initialConfig[option.label] = option.min ?? 0; // Provide a default value for undefined
+            initialConfig[option.label] = option.min ?? 0;
         });
+
         setConfig(initialConfig);
+
+        // Az other objektumot is inicializáljuk
+        const initialOther: Record<string, string> = {};
+        if (Array.isArray(service.other) && service.other.length > 0) {
+            const firstOther = service.other[0]; // Az első elemet használjuk
+
+            Object.entries(firstOther).forEach(([key, value]) => {
+                if (typeof value === "object" && value !== null && key !== "variables") {
+                    initialOther[key] = String(value);
+                } else {
+                    initialOther[key] = value;
+                }
+            });
+        }
+        setOther(initialOther);    
     }, [service]);
 
     useEffect(() => {
@@ -111,6 +135,22 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        const newErrors: Record<string, boolean> = {};
+        Object.keys(categorizedOptions).forEach((category) => {
+            categorizedOptions[category].forEach((option) => {
+                if (option.options && !config[option.label]) {
+                    newErrors[option.label] = true;
+                }
+            });
+        });
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
+            toast.error("Tölts ki minden kötelező mezőt!");
+            return;
+        }
         
 
         try {
@@ -121,26 +161,34 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                 },
                 body: JSON.stringify({
                     price: price,
+                    serviceName: service.name,
                     serviceId: service.id,
                     serviceType: service.type,
                     config: config,
+                    other: other,
                     username: session?.user?.username,
                 })
             });
 
             if (coupon) {
                 const referalBonus = 1 + ((coupon.discount / 100) * 0.6);
-                await axios.post(`/api/users/add-balance`, {
-                    code: coupon.code,
-                    amount: referalBonus
-                });
+                try {
+                    const response = await axios.post(`/api/users/add-balance`, {
+                        code: coupon.code,
+                        amount: referalBonus,
+                    });
+                } catch (error) {
+                    toast.error('Hiba történt a kupon érvényesítése során');
+                    return;
+                }
+
             }
 
             const responseData = await response.json();
-            if (responseData) {
-                console.log("Konfiguráció elküldve:", responseData);
+            if (responseData.success) {
+                toast.success("Sikeres vásárlás!");
             } else {
-                console.error("Hiba történt a konfiguráció elküldésekor",);
+                console.error("Hiba történt a konfiguráció elküldésekor", responseData);
             }
         } catch (error) {
             setToastMessage('Hiba történt a konfiguráció elküldésekor');
@@ -199,10 +247,10 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                                             </Label>
                                             {option.options ? (
                                                 <Select
-                                                    value={config[option.label]?.toString()}
+                                                    value={config[option.label]?.toString() || ""}
                                                     onValueChange={(value) => handleConfigChange(option.label, value)}
                                                 >
-                                                    <SelectTrigger className="col-span-1 md:col-span-3">
+                                                    <SelectTrigger className={`col-span-1 md:col-span-3 ${errors && errors[option.label] ? "border-red-500" : ""}`}>
                                                         <SelectValue placeholder={option.placeholder || `Válasszon ${option.label}`} />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -213,6 +261,7 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
+                                                
                                             ) : option.min !== undefined && option.max !== undefined ? (
                                                 <div className="col-span-1 md:col-span-3">
                                                     <Slider
