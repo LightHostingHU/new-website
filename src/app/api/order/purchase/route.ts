@@ -3,7 +3,7 @@ import {
   checkOrCreatePterodactylUser,
   createPterodactylServer,
 } from "@/lib/pterodactyl";
-import { checkOrCreateVirtualiozorUser, checkVirtualizorUser } from "@/lib/virtualizor";
+import { checkOrCreateVirtualiozorUser, checkVirtualizorUser, createVirtualizorServer } from "@/lib/virtualizor";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 
@@ -26,6 +26,10 @@ export async function POST(req: NextRequest) {
         disk: config["Szerver tárhely"],
         cpu: config["CPU használat"],
         version: config["Szerver verzió"],
+        steamtoken: config["Steam fiók token"],
+        slot: config["Szerver Slot"],
+        beamng: config["BeamNG Szerver Token"],
+        backend: config["Verzió"]
       };
     } else if (serviceType === 'vps') {
       configData = {
@@ -36,12 +40,35 @@ export async function POST(req: NextRequest) {
       };
     }
 
+    if (serviceType === 'game'){
+      if (other?.variables){
+        const option3Key = Object.keys(other.variables).find(keys => other.variables[keys] === '{{option3}}');
+
+        if (option3Key){
+          const possibleValues =  [
+            configData?.version,
+            configData?.steamtoken,
+            configData?.slot,
+            configData?.beamng,
+          ];
+
+          const option3Value = possibleValues.find((value) => value !== undefined) ?? '';
+          other.variables[option3Key] = option3Value;
+        }
+      }
+    }
 
     if (serviceType === 'game'){
+      console.log("config", config);
       if (
         !config["Szerver ram"] ||
         !config["Szerver tárhely"] ||
-        !config["CPU használat"]
+        !config["CPU használat"] ||
+        !config["Szerver verzió"] &&
+        !config["Steam fiók token"] &&
+        !config["Szerver Slot"] &&
+        !config["BeamNG Szerver Token"] &&
+        !config["Verzió"]
       ) {
         return NextResponse.json(
           { success: false, message: "Hiányzó konfigurációs adatok." },
@@ -83,8 +110,7 @@ export async function POST(req: NextRequest) {
     let virtualizoruser;
     if (serviceType === "vps") {
       virtualizoruser = await checkOrCreateVirtualiozorUser(user.email);
-      console.log('virtualizoruser', virtualizoruser)
-      return NextResponse.json(virtualizoruser);
+      // console.log('virtualizoruser', virtualizoruser)
     }
 
     const userId = user.id;
@@ -131,41 +157,84 @@ export async function POST(req: NextRequest) {
         });
       }
     } else if (serviceType === "vps") {
-      const serverResponse = await createVirtualizorServer(
-        pterouser.attributes.id,
-        serviceId,
-        serviceName,
-        configData,
-        other,
-        price
-      );
-
-      if (!serverResponse.success) {
+      console.log(serviceId);
+      if (!virtualizoruser) {
         return NextResponse.json(
-          {
-            success: false,
-            message: `Hiba történt a szerver létrehozásakor: ${serverResponse.message}`,
-          },
+          { success: false, message: "Virtualizor user could not be created or found." },
           { status: 500 }
         );
-      } else if (serverResponse.success) {
-        // Szerver létrehozása sikeres
-        await db.service.create({
-          data: {
-            user_id: userId,
-            service_id: serviceId,
-            more_info: JSON.stringify(configData),
-            price: price,
-            type: serviceType,
-            buy_date: new Date(),
-            expire_date: new Date(
-              new Date().setMonth(new Date().getMonth() + 1)
-            ),
-            status: "active",
-            pterodactyl_id: serverResponse.pterodactyl_id,
-          },
-        });
       }
+      
+      
+      const lastService = await db.service.findFirst({
+        orderBy: {
+          id: "desc",
+        },
+        select: {
+          id: true,
+        }
+      }) || { id: 0 }
+
+      const storageUUID = other.storage_uuid;
+      const serverId = other.server_id;
+      const storageId = other.storage_id;
+      const root_password = Math.random().toString(16).substring(2, 15).substring(0, 8);
+
+      if (!('data' in virtualizoruser) || !virtualizoruser.data) {
+        return NextResponse.json(
+          { success: false, message: "Invalid Virtualizor user response." },
+          { status: 500 }
+        );
+      }
+
+      if (typeof virtualizoruser.data !== 'object' || !('uid' in virtualizoruser.data) || !('email' in virtualizoruser.data)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid Virtualizor user response." },
+          { status: 500 }
+        );
+      }
+
+      const serverResponse = await createVirtualizorServer(
+        serverId,
+        virtualizoruser.data.uid as string,
+        virtualizoruser.data.email as string,
+        configData?.os,
+        `VPS-${lastService?.id}`,
+        root_password,
+        storageId,
+        parseInt(configData?.disk),
+        storageUUID,
+        parseInt(configData?.ram),
+        parseInt(configData?.cpu)
+      )
+      console.log('serverResponse', serverResponse)
+
+      // if (!serverResponse.success) {
+      //   return NextResponse.json(
+      //     {
+      //       success: false,
+      //       message: `Hiba történt a szerver létrehozásakor: ${serverResponse.message}`,
+      //     },
+      //     { status: 500 }
+      //   );
+      // } else if (serverResponse.success) {
+      //   // Szerver létrehozása sikeres
+      //   await db.service.create({
+      //     data: {
+      //       user_id: userId,
+      //       service_id: serviceId,
+      //       more_info: JSON.stringify(configData),
+      //       price: price,
+      //       type: serviceType,
+      //       buy_date: new Date(),
+      //       expire_date: new Date(
+      //         new Date().setMonth(new Date().getMonth() + 1)
+      //       ),
+      //       status: "active",
+      //       pterodactyl_id: serverResponse.pterodactyl_id,
+      //     },
+      //   });
+      // }
     }
     
     // Egyenleg csökkentése

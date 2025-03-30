@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 import axios from "axios";
 import { NextResponse } from "next/server";
+import { config } from "process";
 
 const PTERODACTYL_API_KEY = process.env.PTERODACTYL_API_KEY;
 const PTERODACTYL_API_URL = process.env.PTERODACTYL_API_URL;
@@ -74,6 +75,21 @@ export async function createPterodactylServer(
   let nestId = other.nestId;
   let nodeId = other.nodeId;
   let variables = other.variables;
+
+  console.log("Other",other)
+  if (Number(serviceId) === 30) {
+    if (configData.backend === "NodeJs") {
+      eggId = other.variables.nodejs.id;
+      variables = other.variables.nodejs.variables;
+    } else if (
+      configData.backend ===
+      "Python"
+    ) {
+      eggId = other.variables.python.id;
+      variables = other.variables.python.variables;
+    }
+  }
+
   let info = await getEggInfo(nestId, eggId);
 
   const serverData = {
@@ -105,6 +121,7 @@ export async function createPterodactylServer(
     environment: variables,
   };
 
+  console.log("Küldött serverData:", JSON.stringify(serverData, null, 2));
   try {
     const response = await axios.post<{ attributes: { identifier: string } }>(
       `${PTERODACTYL_API_URL}/servers`,
@@ -131,13 +148,13 @@ export async function createPterodactylServer(
       };
     }
   } catch (error) {
+    console.log('error in createPterodactylServer',error);
     return {
       success: false,
       message: "Hiba történt a kérés feldolgozása során.",
     };
   }
 }
-
 export async function getEggInfo(nestId: string, eggId: string) {
   const apiKey = process.env.PTERODACTYL_API_KEY;
   const apiUrl = process.env.PTERODACTYL_API_URL;
@@ -195,8 +212,8 @@ export async function getPterodactylServerResourceUsage(
 
     throw new Error(
       error.response?.data?.errors?.[0]?.detail ||
-        error.response?.data?.error ||
-        "Failed to fetch server resources"
+      error.response?.data?.error ||
+      "Failed to fetch server resources"
     );
   }
 }
@@ -238,8 +255,8 @@ export async function changePterodactylPowerState(
 
     throw new Error(
       error.response?.data?.errors?.[0]?.detail ||
-        error.response?.data?.error ||
-        "Failed to fetch server resources"
+      error.response?.data?.error ||
+      "Failed to fetch server resources"
     );
   }
 }

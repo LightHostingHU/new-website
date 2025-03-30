@@ -12,10 +12,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface Coupon {
@@ -24,7 +30,11 @@ interface Coupon {
     is_active: number;
 }
 
-const calculatePrice = async (options: ServiceOption[], config: Record<string, number>, coupon: Coupon | null) => {
+const calculatePrice = async (
+    options: ServiceOption[],
+    config: Record<string, number>,
+    coupon: Coupon | null
+) => {
     let total = options.reduce((total, option) => {
         if (option.price) {
             const value = config[option.label] ?? option.min;
@@ -36,7 +46,7 @@ const calculatePrice = async (options: ServiceOption[], config: Record<string, n
                 return total + price;
             } else {
                 const steps = (value - min!) / step!;
-                return total + price + (steps * price);
+                return total + price + steps * price;
             }
         }
         return total;
@@ -64,6 +74,12 @@ interface ServiceOption {
 
 interface ServiceOther {
     variables?: Record<string, string | number>;
+    eggId?: string;
+    nestId?: string;
+    nodeId?: string;
+    server_id?: string;
+    storage_id?: string;
+    storage_uidd?: string;
 }
 
 interface Service {
@@ -71,16 +87,24 @@ interface Service {
     name: string;
     type: string;
     options: ServiceOption[];
-    other: ServiceOther | ServiceOther[]; 
+    other: ServiceOther | ServiceOther[];
 }
 
 interface CategorizedOptions {
     [key: string]: ServiceOption[];
 }
 
-export function ConfigurationModal({ service, isOpen, onClose }: { service: Service; isOpen: boolean; onClose: () => void }) {
-    const { data: session, status } = useSession()
-    const router = useRouter()   
+export function ConfigurationModal({
+    service,
+    isOpen,
+    onClose,
+}: {
+    service: Service;
+    isOpen: boolean;
+    onClose: () => void;
+}) {
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const [config, setConfig] = useState<Record<string, number | string>>({});
     const [other, setOther] = useState<Record<string, string>>({});
     const [price, setPrice] = useState<number>(0);
@@ -91,9 +115,9 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
     const [errors, setErrors] = useState<Record<string, boolean> | null>(null);
 
     useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/sign-in');
-        } 
+        if (status === "unauthenticated") {
+            router.push("/sign-in");
+        }
     }, [status, session, router]);
 
     useEffect(() => {
@@ -102,28 +126,34 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
         service.options.forEach((option) => {
             initialConfig[option.label] = option.min ?? 0;
         });
-
         setConfig(initialConfig);
 
-        // Az other objektumot is inicializáljuk
         const initialOther: Record<string, string> = {};
         if (Array.isArray(service.other) && service.other.length > 0) {
-            const firstOther = service.other[0]; // Az első elemet használjuk
+            const firstOther = service.other[0];
 
             Object.entries(firstOther).forEach(([key, value]) => {
-                if (typeof value === "object" && value !== null && key !== "variables") {
+                if (
+                    typeof value === "object" &&
+                    value !== null &&
+                    key !== "variables"
+                ) {
                     initialOther[key] = String(value);
                 } else {
                     initialOther[key] = value;
                 }
             });
         }
-        setOther(initialOther);    
+        setOther(initialOther);
     }, [service]);
 
     useEffect(() => {
         const updatePrice = async () => {
-            const newPrice = await calculatePrice(service.options, config as Record<string, number>, coupon);
+            const newPrice = await calculatePrice(
+                service.options,
+                config as Record<string, number>,
+                coupon
+            );
             setPrice(newPrice);
         };
         updatePrice();
@@ -151,13 +181,12 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
             toast.error("Tölts ki minden kötelező mezőt!");
             return;
         }
-        
 
         try {
             const response = await fetch(`/api/order/purchase`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     price: price,
@@ -167,38 +196,40 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                     config: config,
                     other: other,
                     username: session?.user?.username,
-                })
+                }),
             });
 
             if (coupon) {
-                const referalBonus = 1 + ((coupon.discount / 100) * 0.6);
+                const referalBonus = 1 + (coupon.discount / 100) * 0.6;
                 try {
                     const response = await axios.post(`/api/users/add-balance`, {
                         code: coupon.code,
                         amount: referalBonus,
                     });
                 } catch (error) {
-                    toast.error('Hiba történt a kupon érvényesítése során');
+                    toast.error("Hiba történt a kupon érvényesítése során");
                     return;
                 }
-
             }
 
             const responseData = await response.json();
+            console.log("responseData", responseData);
             if (responseData.success) {
                 toast.success("Sikeres vásárlás!");
             } else {
                 console.error("Hiba történt a konfiguráció elküldésekor", responseData);
             }
         } catch (error) {
-            setToastMessage('Hiba történt a konfiguráció elküldésekor');
+            setToastMessage("Hiba történt a konfiguráció elküldésekor");
         }
         onClose();
     };
 
     const handleApplyCoupon = async () => {
         try {
-            const response = await axios.get<{ coupon: Coupon }>(`${process.env.NEXT_PUBLIC_API_URL}/coupons/validate/${couponInput}`);
+            const response = await axios.get<{ coupon: Coupon }>(
+                `${process.env.NEXT_PUBLIC_API_URL}/coupons/validate/${couponInput}`
+            );
             if (response.data.coupon.is_active === 1) {
                 setCoupon(response.data.coupon);
                 setCouponApplied(true);
@@ -207,7 +238,7 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                 setCouponApplied(false);
             }
         } catch (error) {
-            setToastMessage('Érvénytelen kupon!');
+            setToastMessage("Érvénytelen kupon!");
             setCoupon(null);
             setCouponApplied(false);
         }
@@ -232,7 +263,9 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>{service.name} Konfiguráció</DialogTitle>
-                    <DialogDescription>Állítsa be a szerver paramétereit igényei szerint.</DialogDescription>
+                    <DialogDescription>
+                        Állítsa be a szerver paramétereit igényei szerint.
+                    </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-6 py-4">
@@ -241,17 +274,29 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                                 <h3 className="text-lg font-semibold mb-2">{category}</h3>
                                 <div className="space-y-4">
                                     {categorizedOptions[category].map((option, index) => (
-                                        <div key={index} className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+                                        <div
+                                            key={index}
+                                            className="grid grid-cols-1 md:grid-cols-4 items-center gap-4"
+                                        >
                                             <Label htmlFor={option.label} className="text-right">
                                                 {option.label}
                                             </Label>
                                             {option.options ? (
                                                 <Select
                                                     value={config[option.label]?.toString() || ""}
-                                                    onValueChange={(value) => handleConfigChange(option.label, value)}
+                                                    onValueChange={(value) =>
+                                                        handleConfigChange(option.label, value)
+                                                    }
                                                 >
-                                                    <SelectTrigger className={`col-span-1 md:col-span-3 ${errors && errors[option.label] ? "border-red-500" : ""}`}>
-                                                        <SelectValue placeholder={option.placeholder || `Válasszon ${option.label}`} />
+                                                    <SelectTrigger
+                                                        className={`col-span-1 md:col-span-3 ${errors && errors[option.label] ? "border-red-500" : ""}`}
+                                                    >
+                                                        <SelectValue
+                                                            placeholder={
+                                                                option.placeholder ||
+                                                                `Válasszon ${option.label}`
+                                                            }
+                                                        />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {option.options.map((opt: string, i: number) => (
@@ -261,38 +306,52 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                
-                                            ) : option.min !== undefined && option.max !== undefined ? (
+                                            ) : option.min !== undefined &&
+                                                option.max !== undefined ? (
                                                 <div className="col-span-1 md:col-span-3">
                                                     <Slider
                                                         min={option.min}
                                                         max={option.max}
                                                         step={option.step}
-                                                        value={[config[option.label] as number ?? option.default ?? option.min]}
-                                                        onValueChange={([value]) => handleConfigChange(option.label, value)}
+                                                        value={[
+                                                            (config[option.label] as number) ??
+                                                            option.default ??
+                                                            option.min,
+                                                        ]}
+                                                        onValueChange={([value]) =>
+                                                            handleConfigChange(option.label, value)
+                                                        }
                                                     />
                                                     <div className="mt-1 text-center">
-                                                        {config[option.label] ?? option.default ?? option.min} {option.suffix}
+                                                        {option.suffix === "GB"
+                                                            ? Number(config[option.label] ?? option.default ?? option.min) / 1024
+                                                            : Number(config[option.label] ?? option.default ?? option.min)
+                                                        }{" "}
+                                                        {option.suffix}{" "}
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <Input
                                                     id={option.label}
                                                     value={config[option.label]?.toString()}
-                                                    onChange={(e) => handleConfigChange(option.label, e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleConfigChange(option.label, e.target.value)
+                                                    }
                                                     className="col-span-1 md:col-span-3"
                                                     placeholder={option.placeholder}
                                                 />
                                             )}
                                         </div>
-                                    ))}
+                                    ))}{" "}
                                 </div>
                             </div>
                         ))}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4 flex-grow">
-                                    <Label htmlFor="coupon" className="text-right">Kuponkód</Label>
+                                    <Label htmlFor="coupon" className="text-right">
+                                        Kuponkód
+                                    </Label>
                                     <Input
                                         id="coupon"
                                         value={couponInput}
@@ -301,12 +360,18 @@ export function ConfigurationModal({ service, isOpen, onClose }: { service: Serv
                                         placeholder="Írja be a kuponkódot"
                                     />
                                 </div>
-                                <Button type="button" onClick={handleApplyCoupon}>Alkalmaz</Button>
+                                <Button type="button" onClick={handleApplyCoupon}>
+                                    Alkalmaz
+                                </Button>
                             </div>
-                            {couponApplied && <p className="text-green-500">Kuponkód alkalmazva!</p>}
+                            {couponApplied && (
+                                <p className="text-green-500">Kuponkód alkalmazva!</p>
+                            )}
                             <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
                                 <Label className="text-right font-bold">Végösszeg:</Label>
-                                <div className="col-span-1 md:col-span-3 text-xl font-bold text-primary">{price.toLocaleString()} Ft / hó</div>
+                                <div className="col-span-1 md:col-span-3 text-xl font-bold text-primary">
+                                    {price.toLocaleString()} Ft / hó
+                                </div>
                             </div>
                         </div>
                     </div>
