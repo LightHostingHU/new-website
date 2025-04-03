@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request, { params }: { params: { serverId: string } }) {
     const { serverId } = await params;
 
+
     try {
         const data = await getPterodactylServerResourceUsage(serverId);
         if (data) {

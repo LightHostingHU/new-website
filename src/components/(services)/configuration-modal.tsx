@@ -113,6 +113,7 @@ export function ConfigurationModal({
     const [couponApplied, setCouponApplied] = useState<boolean>(false);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, boolean> | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -165,6 +166,7 @@ export function ConfigurationModal({
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         const newErrors: Record<string, boolean> = {};
         Object.keys(categorizedOptions).forEach((category) => {
@@ -179,6 +181,7 @@ export function ConfigurationModal({
 
         if (Object.keys(newErrors).length > 0) {
             toast.error("Tölts ki minden kötelező mezőt!");
+            setIsSubmitting(false);
             return;
         }
 
@@ -208,6 +211,7 @@ export function ConfigurationModal({
                     });
                 } catch (error) {
                     toast.error("Hiba történt a kupon érvényesítése során");
+                    setIsSubmitting(false);
                     return;
                 }
             }
@@ -222,6 +226,7 @@ export function ConfigurationModal({
         } catch (error) {
             setToastMessage("Hiba történt a konfiguráció elküldésekor");
         }
+        setIsSubmitting(false);
         onClose();
     };
 
@@ -376,7 +381,7 @@ export function ConfigurationModal({
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Megrendelés</Button>
+                        <Button type="submit" disabled={isSubmitting}>Megrendelés</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

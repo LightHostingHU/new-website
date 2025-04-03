@@ -202,14 +202,9 @@ export async function getPterodactylServerResourceUsage(
         },
       }
     );
+
     return res.data;
   } catch (error: any) {
-    console.error("Pterodactyl API Error Details:", {
-      status: error.response?.status,
-      data: error.response?.data,
-      config: error.config,
-    });
-
     throw new Error(
       error.response?.data?.errors?.[0]?.detail ||
       error.response?.data?.error ||
@@ -217,7 +212,6 @@ export async function getPterodactylServerResourceUsage(
     );
   }
 }
-
 export async function changePterodactylPowerState(
   pterodactyl_id: string,
   powerState: string
@@ -225,8 +219,6 @@ export async function changePterodactylPowerState(
   const apiKey = process.env.PTERODACTYL_CLIENT_API_KEY;
   const apiUrl = process.env.PTERODACTYL_API_CLIENT_URL;
 
-  console.log('pterodactyl_id', pterodactyl_id)
-  console.log('powerState', powerState)
   if (!apiKey || !apiUrl) {
     throw new Error("Pterodactyl API configuration is missing");
   }

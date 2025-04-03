@@ -13,95 +13,159 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// model User {
+//   id            Int      @id @default(autoincrement())
+//   name          String?
+//   email         String?   @unique  
+//   username      String   @unique
+//   firstname     String
+//   lastname      String
+//   password      String
+//   avatar        String   @db.VarChar(255)
+//   money         Int      @default(0)
+//   role          String   @default("user")
+//   discord       String?  @db.LongText
+//   discordData   String?  @db.LongText
+//   createdAt     DateTime @default(now())
+//   verified      Boolean  @default(false)
+//   updatedAt     DateTime @updatedAt
+//   resetToken    String?
+//   resetTokenExpires DateTime?
+
+//   services      Service[] @relation("UserServices")
+//   accounts      Account[] @relation("UserAccounts")
+// }
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            Int
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model User {
-  id Int @id @default(autoincrement())
-  email String  @unique
-  username String @unique
-  firstname String
-  lastname String
-  password String
-  avatar String @db.VarChar(255)
-  money Int @default(0)
-  role String @default("user")
-  verified Boolean @default(false)
-  discord String @db.LongText
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int       @id @default(autoincrement())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  discordData Json?
+
+  username      String    @unique
+  firstname     String
+  lastname      String
+  password      String?
+  avatar        String    @db.VarChar(255)
+  money         Int       @default(0)
+  role          String    @default("user")
+  verified      Boolean   @default(false)
+  discord       String    @db.LongText
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   resetToken String?
   resetTokenExpires DateTime?
 
-  services Service[] @relation("UserServices")
+  services      Service[] @relation("UserServices") // Add this line
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model ServiceList {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(255)
-  description String? @db.LongText
-  features String? @db.LongText
-  image String @db.VarChar(255)
-  options String @db.LongText
-  type String @db.VarChar(255)
-  offer String? @db.LongText
-  other String? @db.LongText
-  gradientColors String? @db.LongText 
+  id             Int     @id @default(autoincrement())
+  name           String  @db.VarChar(255)
+  description    String? @db.LongText
+  features       String? @db.LongText
+  image          String  @db.VarChar(255)
+  options        String  @db.LongText
+  type           String  @db.VarChar(255)
+  offer          String? @db.LongText
+  other          String? @db.LongText
+  gradientColors String? @db.LongText
 }
 
 model Service {
-  id Int @id @default(autoincrement())
-  user_id Int @db.Int
-  service_id Int @db.Int
-  type String @db.VarChar(255)
-  buy_date DateTime @db.DateTime
-  expire_date DateTime @db.DateTime
-  expired Boolean @default(false)
-  more_info String @db.LongText
-  price Int 
-  status String 
+  id             Int      @id @default(autoincrement())
+  user_id        Int      @db.Int
+  service_id     Int      @db.Int
+  type           String   @db.VarChar(255)
+  buy_date       DateTime @db.DateTime
+  expire_date    DateTime @db.DateTime
+  expired        Boolean  @default(false)
+  more_info      String   @db.LongText
+  price          Int
+  status         String
   pterodactyl_id String?
-  
-    user        User     @relation(fields: [user_id], references: [id], name: "UserServices")
+
+  user User @relation(fields: [user_id], references: [id], name: "UserServices")
 }
 
 model ResetPassword {
-  id Int @id @default(autoincrement())
-  toke String @db.VarChar(255)
+  id           Int      @id @default(autoincrement())
+  toke         String   @db.VarChar(255)
   token_expire DateTime @db.DateTime
-  email String @db.VarChar(255)
-  createdAt DateTime @default(now())
+  email        String   @db.VarChar(255)
+  createdAt    DateTime @default(now())
 }
 
 model Coupons {
-  id Int @id @default(autoincrement())
-  code String @db.VarChar(255) @unique
-  discount Float @db.Float
-  user_id Int @db.Int
-  expire DateTime @db.DateTime
-  is_active Boolean @default(true)
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(255)
+  discount  Float    @db.Float
+  user_id   Int      @db.Int
+  expire    DateTime @db.DateTime
+  is_active Boolean  @default(true)
   createdAt DateTime @default(now())
 }
 
 model Cdn {
-  id Int @id @default(autoincrement())
-  user_id Int @db.Int
-  url String @db.VarChar(255)
-  type String @db.Text
-  filename String @db.VarChar(255)
+  id            Int      @id @default(autoincrement())
+  user_id       Int      @db.Int
+  url           String   @db.VarChar(255)
+  type          String   @db.Text
+  filename      String   @db.VarChar(255)
   deletion_date DateTime @db.DateTime
-  delete_hash String @db.VarChar(255)
-  expire DateTime @db.DateTime
+  delete_hash   String   @db.VarChar(255)
+  expire        DateTime @db.DateTime
 }
 
-model Bans{
-  id Int @id @default(autoincrement())
-  user_id Int @db.Int
-  reason String @db.VarChar(255)
+model Bans {
+  id        Int      @id @default(autoincrement())
+  user_id   Int      @db.Int
+  reason    String   @db.VarChar(255)
   createdAt DateTime @default(now())
 }
 
 model News {
-  id Int @id @default(autoincrement())
-  title String @db.VarChar(255)
-  description String @db.LongText
-  admin_id Int @db.Int
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String   @db.LongText
+  admin_id    Int      @db.Int
+  createdAt   DateTime @default(now())
 }

@@ -250,9 +250,9 @@ export function Services() {
                                                     >
                                                         <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/30 transition-colors mr-3">
                                                             <HardDrive className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                                                        </div>
+                                                        </div> 
                                                         <span className="text-gray-700 dark:text-gray-200">
-                                                            Tárhely: {serviceInfo ? serviceInfo["disk"] : "N/A"} GB
+                                                            Tárhely: {serviceInfo ? (getServiceName(service.service_id).includes('Discord') ? serviceInfo["disk"] : serviceInfo["disk"] / 1024) : "N/A"} {getServiceName(service.service_id).includes('Discord') ? 'MB' : 'GB'}
                                                         </span>
                                                     </motion.div>
                                                 </div>

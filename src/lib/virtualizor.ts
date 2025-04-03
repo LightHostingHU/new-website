@@ -118,53 +118,6 @@ let osids = [
   { osid: 1110, name: "Ubuntu 24.04 (x86_64)" },
   { osid: 1121, name: "Windows 2022 (SCSI VirtIO)" },
 ];
-// export async function createVirtualizorServer(
-//     serverId: string,
-//     uid: string,
-//     email: string,
-//     os: string,
-//     hostname: string,
-//     root_password: string,
-//     storage_id: string,
-//     storage_limit: number,
-//     storage_uuid: string,
-//     ram: number,
-//     cpu: number
-// ) {
-//     const session = await getServerSession(authOptions);
-
-//     const serverData = {
-//         server_id: serverId,
-//         user_id: uid,
-//         user_email: email,
-//         osid: osids.find((item) => item.name === os)?.osid || 0,
-//         hostname: hostname,
-//         root_password: root_password,
-//         storage_id: storage_id,
-//         storage_limit: storage_limit / 1024,
-//         storage_uuid: storage_uuid,
-//         ram: ram,
-//         core: cpu,
-//     };
-
-//     try {
-//         const serverCreateResponse = await axios.post(
-//             `${virtualizorApiURL}/createVPS.php`, serverData,
-//             {
-//                 headers: {
-//                     "Content-Type": "application/json",
-//                     Accept: "application/json",
-//                 },
-//             }
-//         ).then((response) => {
-//             return response.data;
-//         }).catch((error) => {
-//             console.log(error);
-//         })
-//     }   catch (error) {
-//         console.log(error)
-//     }
-// }
 
 export async function createVirtualizorServer(
   serverId: string,
@@ -180,6 +133,19 @@ export async function createVirtualizorServer(
   cpu: number
 ) {
   try {
+    console.log('Creating Virtualizor server with params:', {
+      server_id: serverId,
+      user_id: userId,
+      user_email: userEmail,
+      osid: osids.find((item) => item.name === osId)?.osid || 0,
+      hostname: hostname,
+      storage_id: storageId,
+      storage_limit: storageLimit / 1024,
+      storage_uuid: storageUUID,
+      ram: ram,
+      core: cpu
+    });
+
     const response = await axios.post(
       `${virtualizorApiURL}/createVPS.php`,
       {
@@ -202,7 +168,12 @@ export async function createVirtualizorServer(
         },
       }
     );
-    return response.data; // A válasz adatait visszaadja
+    console.log('Virtualizor server creation response:', response.data);
+    return {
+      status: "success",
+      message: "Server created successfully",
+      data: response.data,
+    };
   } catch (error) {
     console.error("Error creating Virtualizor server:", error);
     return { status: "error", message: "Failed to create server" };

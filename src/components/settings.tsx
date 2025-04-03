@@ -8,19 +8,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { toast } from "sonner"
+import { signIn, useSession } from "next-auth/react"
 
 export function Settings() {
+    const session = useSession()
     const [userData, setUserData] = useState<{
         firstname: string;
         lastname: string;
         email: string;
         avatar?: string;
-        profilePicture?: string
+        profilePicture?: string;
+        discordConnected?: boolean;
     }>({
         firstname: "",
         lastname: "",
         email: "",
         avatar: "",
+        discordConnected: false
     })
     const [passwords, setPasswords] = useState({
         currentPassword: "",
@@ -35,7 +39,7 @@ export function Settings() {
     const fetchUserData = async () => {
         try {
             const [profileResponse, pictureResponse] = await Promise.all([
-                axios.get<{ firstname: string; lastname: string; email: string; phone: string; }>('/api/user/profile'),
+                axios.get<{ firstname: string; lastname: string; email: string; phone: string; discordConnected: boolean }>('/api/user/profile'),
                 axios.get<{ profilePicture: string }>('/api/user/profile-picture')
             ])
 
@@ -94,7 +98,7 @@ export function Settings() {
                     'Content-Type': 'multipart/form-data',
                 },
             })
-            setUserData({ ...userData, avatar: response.data.profilePicture })
+            setUserData({ ...userData, profilePicture: response.data.profilePicture })
             toast.success('Profilkép sikeresen feltöltve!')
             await fetchUserData()
             e.target.value = ''
@@ -103,6 +107,30 @@ export function Settings() {
             e.target.value = ''
         }
     }
+    const handleDiscordConnection = async () => {
+
+        const userId = session?.data?.user.userid;
+
+        if (userId) {
+            try {
+                await axios.post(`/api/discord/connect/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username: userId,
+                    })
+                });
+                toast.success('Sikeresen összekapcsoltad a Discord fiókodat')
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            console.log("Nincs felhasználói ID.");
+        }
+
+    };
 
     return (
         <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
@@ -112,6 +140,7 @@ export function Settings() {
                     <TabsList className="inline-flex h-12 items-center justify-center rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
                         <TabsTrigger value="profile" className="rounded-md px-6 transition-all">Profil</TabsTrigger>
                         <TabsTrigger value="security" className="rounded-md px-6 transition-all">Biztonság</TabsTrigger>
+                        <TabsTrigger value="connections" className="rounded-md px-6 transition-all">Kapcsolatok</TabsTrigger>
                     </TabsList>
                     <TabsContent value="profile">
                         <Card className="backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 shadow-xl">
@@ -230,6 +259,33 @@ export function Settings() {
                                     Jelszó módosítása
                                 </Button>
                             </CardFooter>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="connections">
+                        <Card className="backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 shadow-xl">
+                            <CardHeader className="space-y-2">
+                                <CardTitle className="text-2xl font-bold">Kapcsolatok</CardTitle>
+                                <CardDescription className="text-slate-500 dark:text-slate-400">Kapcsold össze fiókjaidat</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Discord fiók</Label>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            {userData.discordConnected ? 'Összekapcsolva' : 'Nincs összekapcsolva'}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={handleDiscordConnection}
+                                        className={`px-8 py-2 rounded-lg transition-all duration-300 ${userData.discordConnected
+                                                ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                : 'bg-[#5865F2] hover:bg-[#4752C4] text-white'
+                                            }`}
+                                    >
+                                        {userData.discordConnected ? 'Leválasztás' : 'Összekapcsolás'}
+                                    </Button>
+                                </div>
+                            </CardContent>
                         </Card>
                     </TabsContent>
                 </Tabs>
