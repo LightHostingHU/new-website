@@ -6,6 +6,9 @@ import { compare } from "bcrypt";
 import { toast } from "sonner";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+
 export function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
@@ -112,3 +115,64 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+
+export async function getDiscordToken(code: string) {
+  const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams(
+      Object.entries({
+        client_id: process.env.DISCORD_CLIENT_ID,
+        client_secret: process.env.DISCORD_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/discord`,
+      }).filter(([_, value]) => value !== undefined) as [string, string][]
+    ),
+  });
+
+  const tokenData = await tokenResponse.json();
+
+  if (!tokenResponse.ok) {
+    throw new Error(`Discord token error: ${tokenData.error}`);
+  }
+
+  return tokenData;
+}
+
+export async function getDiscordUser(accessToken: string) {
+  const userResponse = await fetch("https://discord.com/api/users/@me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const userData = await userResponse.json();
+
+  if (!userResponse.ok) {
+    throw new Error(`Discord user data error: ${userData.error}`);
+  }
+
+  return userData;
+}
+
+export function createJwtToken(userData: any) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+
+  return jwt.sign(
+    {
+      id: userData.id,
+      email: userData.email,
+      username: userData.username,
+      avatar: userData.avatar,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+}
+

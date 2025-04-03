@@ -49,6 +49,8 @@ export default function Home() {
   const router = useRouter();
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [serviceNumber, setServiceNumber] = useState(0);
+  const [userStats, setUserStats] = useState<{ total: number; change: number }[]>([]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -73,6 +75,53 @@ export default function Home() {
       fetchBalance();
     }
   }, [status]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      const fetchServiceNumber = async () => {
+        try {
+          const response = await fetch("/api/services/service-number", {
+            method: "GET",
+          });
+          const data = await response.json();
+          setServiceNumber(data.count);
+          setIsLoading(false);
+        } catch (error) {
+          setIsLoading(false);
+        }
+      };
+      fetchServiceNumber();
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      const fetchUserStats = async () => {
+        try {
+          const response = await fetch("/api/users/stats", {
+            method: "GET",
+          });
+          const data = await response.json();
+          if (data.status === 'success') {
+            setUserStats(data.data);
+          }
+
+          console.log(data)
+          setIsLoading(false);
+        } catch (error) {
+          setIsLoading(false);
+        }
+      };
+      fetchUserStats();
+    }
+  }, [status]);
+
+  const latestStatCustomer = userStats.length > 0 ? userStats[userStats.length - 1] : { count: 0, change: 0 };
+  const previousStatCustomer = userStats.length > 1 ? userStats[userStats.length - 2] : { count: 0, change: 0 };
+
+  const growthCustomer = latestStatCustomer.count - previousStatCustomer.count;
+  const growthDirectionCustomer = growthCustomer >= 0 ? "↑" : "↓";
+  const growthClassCustomer = growthCustomer >= 0 ? "text-green-500" : "text-red-500";
 
   const formatNumber = (num: number | undefined) => {
     if (typeof num !== "number" || isNaN(num)) {
@@ -120,7 +169,7 @@ export default function Home() {
               <Server className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">7</div>
+              <div className="text-2xl font-bold">{serviceNumber}</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
@@ -129,9 +178,12 @@ export default function Home() {
               <Users className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3</div>
+              <div className="text-2xl font-bold">{latestStatCustomer.count}</div>
               <p className="text-xs text-muted-foreground flex items-center mt-1">
-                <span className="text-green-500 mr-1">↑</span>1 az előző hónaphoz képest
+                <span className={`${growthClassCustomer} mr-1`}>
+                  {growthDirectionCustomer}
+                </span>
+                {Math.abs(growthCustomer)} az előző hónaphoz képest
               </p>
             </CardContent>
           </Card>

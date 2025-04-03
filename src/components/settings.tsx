@@ -9,6 +9,7 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import { toast } from "sonner"
 import { signIn, useSession } from "next-auth/react"
+import { error } from "console"
 
 export function Settings() {
     const session = useSession()
@@ -19,6 +20,7 @@ export function Settings() {
         avatar?: string;
         profilePicture?: string;
         discordConnected?: boolean;
+        discordUsername?: string;
     }>({
         firstname: "",
         lastname: "",
@@ -31,6 +33,8 @@ export function Settings() {
         newPassword: "",
         confirmPassword: ""
     })
+    const [discordConnected, setDiscordConnected] = useState(false);
+    const [discordData, setDiscordData] = useState(false);
 
     useEffect(() => {
         fetchUserData()
@@ -107,29 +111,45 @@ export function Settings() {
             e.target.value = ''
         }
     }
-    const handleDiscordConnection = async () => {
+    
 
-        const userId = session?.data?.user.userid;
-
-        if (userId) {
+    useEffect(() => {
+        const checkDiscordConnection = async () => { 
             try {
-                await axios.post(`/api/discord/connect/`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        username: userId,
-                    })
-                });
-                toast.success('Sikeresen összekapcsoltad a Discord fiókodat')
-            } catch (error) {
-                console.log(error)
-            }
-        } else {
-            console.log("Nincs felhasználói ID.");
-        }
+                const response = await fetch('/api/discord/data'); 
+                const data = await response.json();
 
+                if (data.discordConnected) {
+                    setDiscordConnected(true);
+                    toast.success('Sikeresen összekapcsoltad a Discord fiókod!')
+                    setDiscordData(data.decodedToken);
+                } else {
+                    setDiscordConnected(false);
+                }
+            } catch (error) {
+            }
+        };
+
+        checkDiscordConnection();
+    }, []);
+
+    const handleDiscordConnection = () => {
+        if (!discordConnected) {
+            window.location.href = '/api/discord'; 
+        } else if (discordConnected) {
+            fetch('/api/discord/disconnect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    toast.success('Sikeresen leválasztottad a Discord fiókod!')
+                    setDiscordConnected(false);
+                }
+            })
+        }
     };
 
     return (
@@ -272,17 +292,19 @@ export function Settings() {
                                     <div className="space-y-0.5">
                                         <Label className="text-base">Discord fiók</Label>
                                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                                            {userData.discordConnected ? 'Összekapcsolva' : 'Nincs összekapcsolva'}
+                                            {discordConnected
+                                                ? `Összekapcsolva: ${discordData.username}`
+                                                : 'Nincs összekapcsolva'}
                                         </p>
                                     </div>
                                     <Button
                                         onClick={handleDiscordConnection}
-                                        className={`px-8 py-2 rounded-lg transition-all duration-300 ${userData.discordConnected
-                                                ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                : 'bg-[#5865F2] hover:bg-[#4752C4] text-white'
+                                        className={`px-8 py-2 rounded-lg transition-all duration-300 ${discordConnected
+                                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                                            : 'bg-[#5865F2] hover:bg-[#4752C4] text-white'
                                             }`}
                                     >
-                                        {userData.discordConnected ? 'Leválasztás' : 'Összekapcsolás'}
+                                        {discordConnected ? 'Leválasztás' : 'Összekapcsolás'}
                                     </Button>
                                 </div>
                             </CardContent>

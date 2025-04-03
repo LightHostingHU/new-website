@@ -17,7 +17,7 @@ const menuItems = [
     { icon: Server, label: "Szolgáltatások", href: "/szolgaltatasok" },
     { icon: ShoppingCart, label: "Új Szolgáltatás Vásárlás", href: "/rendeles" },
     { icon: CreditCard, label: "Számlázás", href: "/szamlazas" },
-    { icon: Bell, label: "Értesítések", href: "/ertesitesek" },
+    // { icon: Bell, label: "Értesítések", href: "/ertesitesek" },
     { icon: Settings, label: "Beállítások", href: "/beallitasok" },
 ]
 
