@@ -106,11 +106,11 @@ export async function POST(
             try {
                 const vpsConfig: { id: number; storage_uuid: any; ram?: number; disk?: number; cpu?: number; os?: string } = {
                     id: service.vm_id,
-                    // storage_uuid: storage_uuid
+                    storage_uuid: storage_uuid
                 };
 
                 if (updatedConfig.ram) vpsConfig['ram'] = updatedConfig.ram;
-                // if (updatedConfig.disk) vpsConfig['disk'] = updatedConfig.disk / 1024;
+                if (updatedConfig.disk) vpsConfig['disk'] = updatedConfig.disk / 1024;
                 if (updatedConfig.cpu) vpsConfig['cpu'] = updatedConfig.cpu;
                 if (updatedConfig.os) vpsConfig['os'] = updatedConfig.os;
 
