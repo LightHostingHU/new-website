@@ -33,7 +33,7 @@ export default function useServiceData() {
     const [ips, setIPs] = useState<string>('');
 
     const convertToGB = useCallback((value: number, unit?: string) => {
-        return unit === 'MB' ? value / 1024 : value;
+        return  value / 1024;
     }, []);
 
     const fetchInitialServiceData = useCallback(async () => {
@@ -85,8 +85,6 @@ export default function useServiceData() {
     useEffect(() => {
         fetchInitialServiceData();
     }, [fetchInitialServiceData]);
-
-    console.log('Service Data:', service);
 
     return {
         service,

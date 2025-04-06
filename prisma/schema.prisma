@@ -124,6 +124,7 @@ model Service {
   status         String
   pterodactyl_id String? @unique
   vm_id         Int?     @db.Int @unique
+  panel_id      Int?     @db.Int @unique
 
   user User @relation(fields: [user_id], references: [id], name: "UserServices")
 }

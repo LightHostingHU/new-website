@@ -15,6 +15,7 @@ interface ServerResponse {
   message?: string;
   pterodactyl_id?: string;
   vm_id?: string;
+  panel_id?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest) {
     let pterodactyl_id: string | undefined;
     let serverResponse: ServerResponse;
     let vm_id: string | undefined;
+    let panel_id: string | undefined;
 
     if (serviceType === "game") {
       const pterouser = await checkOrCreatePterodactylUser(user.email);
@@ -108,6 +110,7 @@ export async function POST(req: NextRequest) {
         );
       }
       pterodactyl_id = serverResponse.pterodactyl_id;
+      panel_id = serverResponse.panel_id;
     }
 
     if (serviceType === "vps") {
@@ -170,6 +173,7 @@ export async function POST(req: NextRequest) {
         expire_date: new Date(new Date().setMonth(new Date().getMonth() + 1)),
         status: "active",
         pterodactyl_id,
+        panel_id: panel_id ? parseInt(panel_id, 10) : undefined,
         vm_id: vm_id ? parseInt(vm_id, 10) : undefined
       },
     });

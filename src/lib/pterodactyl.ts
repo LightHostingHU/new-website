@@ -127,7 +127,7 @@ export async function createPterodactylServer(
   };
 
   try {
-    const response = await axios.post<{ attributes: { identifier: string } }>(
+    const response = await axios.post<{ attributes: { identifier: string; id: string } }>(
       `${PTERODACTYL_API_URL}/servers`,
       serverData,
       {
@@ -142,6 +142,7 @@ export async function createPterodactylServer(
     if (response.status === 201) {
       return {
         pterodactyl_id: response.data.attributes.identifier,
+        panel_id: response.data.attributes.id,
         success: true,
         message: "Szerver létrehozva sikeresen!",
       };
@@ -158,6 +159,7 @@ export async function createPterodactylServer(
     };
   }
 }
+
 export async function getEggInfo(nestId: string, eggId: string) {
   const apiKey = process.env.PTERODACTYL_API_KEY;
   const apiUrl = process.env.PTERODACTYL_API_URL;
@@ -336,3 +338,101 @@ export async function getPterodactylServerStatus(serverId: string) {
   }
 }
 
+async function getServerDetails(pterodactyl_id: string) {
+    const apiKey = process.env.PTERODACTYL_API_KEY;
+    const apiUrl = process.env.PTERODACTYL_API_URL;
+
+    try {
+      const response = await axios.get(`${apiUrl}/servers/${pterodactyl_id}`, {
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+        });
+
+        return {
+            message: "Szerver adatai sikeresen lekérve.",
+            server: response.data.attributes,
+        };
+    } catch (error) {
+        return {
+            error_message: "Váratlan hiba történt"
+        }
+    }
+}
+
+/**
+ * Frissíti a szolgáltatás konfigurációját a Pterodactyl szerveren.
+ * @param {string} panel_id A Pterodactyl szerver azonosítója.
+ * @param {Object} vpsConfiguration A frissítendő konfigurációs adatok.
+ * @returns {Promise<Object>} A Pterodactyl API válasza a frissítésről.
+ * @throws {Error} Ha a Pterodactyl API konfigurációja hiányzik, vagy a frissítés sikertelen.
+ */
+export async function updateServiceConfiguration(
+  panel_id: string,
+  vpsConfiguration: any
+) {
+  const apiKey = process.env.PTERODACTYL_API_KEY;
+  const apiUrl = process.env.PTERODACTYL_API_URL;
+
+  if (!apiKey || !apiUrl) {
+    throw new Error("Pterodactyl API configuration is missing");
+  }
+
+  try {
+    const serverDetailsRequest = await getServerDetails(panel_id);
+    const server = serverDetailsRequest.server;
+
+    // Payload összeállítása
+    const payload = {
+      allocation: server.allocation,
+      memory: vpsConfiguration.ram,
+      swap: vpsConfiguration.swap ?? 0,
+      disk: vpsConfiguration.disk,
+      io: vpsConfiguration.io ?? 500,
+      cpu: vpsConfiguration.cpu ?? 100,
+      feature_limits: {
+        databases: vpsConfiguration.databases ?? server.feature_limits.databases,
+        backups: vpsConfiguration.backups ?? server.feature_limits.backups,
+        allocations: vpsConfiguration.allocations ?? server.feature_limits.allocations,
+      },
+    };
+
+    const res = await axios.patch(
+      `${apiUrl}/servers/${server.id}/build`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+
+    return {
+      success: false,
+      data: res.data
+    };
+  } catch (error: any) {
+    console.error("Pterodactyl API Error Details:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      config: error.config,
+    });
+
+    let errorMessage = "Váratlan hiba történt a szerver konfigurálása során.";
+
+    if (error.response?.data?.errors) {
+      errorMessage = error.response.data.errors.map((err: any) => 
+        err.detail || err.message || 'Ismeretlen hiba'
+      ).join(', ');
+    }
+
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}

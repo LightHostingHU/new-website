@@ -23,7 +23,6 @@ interface ServiceData {
         cpu: number;
         memory: number;
         storage: number;
-        os?: string;
     };
 }
 
@@ -41,23 +40,27 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
         try {
             const response = await axios.get(`/api/services/config-options?name=${service.service_name}`);
             if (response.status === 200) {
-                console.log('Response data in useConfigOptions:', response.data);
                 const data = response.data as { formattedOptions: ConfigOption[] }[];
                 const dataOther = response.data as { other: any }[];
 
                 setConfigOptions(data[0].formattedOptions);
                 setOther(dataOther[0].other);
 
-                // Inicializáljuk a form adatokat az alapértelmezett értékekkel
                 const initialFormData: { [key: string]: any } = {};
-                data[0].formattedOptions.forEach((option: ConfigOption) => {
-                    if (option.options) {
-                        initialFormData[option.label] = option.options[0];
-                        console.log("Initial Form Data:", option.options[0]);
-                    } else {
-                        initialFormData[option.label] = option.default || option.min;
-                    }
+                let filteredOptions = data[0].formattedOptions.filter((option: ConfigOption) => {
+                    return ["CPU mag", "Szerver ram", "Szerver tárhely", "CPU használat"].includes(option.label);
                 });
+
+                if (service.type === 'vps') {
+                    filteredOptions = filteredOptions.filter(option => option.label !== "Szerver tárhely");
+                }
+
+                filteredOptions.forEach((option: ConfigOption) => {
+                    initialFormData[option.label] = option.default || option.min;
+                });
+
+                console.log('Initial Form Data:', initialFormData);
+                setConfigOptions(filteredOptions);
                 setConfigFormData(initialFormData);
             }
         } catch (error) {
@@ -74,31 +77,33 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
         // RAM beállítása
         const ramOption = configOptions.find(opt => opt.label === "Szerver ram");
         if (ramOption) {
-            newFormData["Szerver ram"] = service.more_info.memory * 1024;
+            const memoryValue = service.more_info.memory;
+            newFormData["Szerver ram"] = memoryValue > 1024 ? memoryValue : memoryValue * 1024;
         }
 
         // Tárhely beállítása
-        const storageOption = configOptions.find(opt => opt.label === "Szerver tárhely");
-        if (storageOption) {
-            newFormData["Szerver tárhely"] = service.more_info.storage * 1024;
+        if (service.type !== 'vps') {
+            const storageOption = configOptions.find(opt => opt.label === "Szerver tárhely");
+            if (storageOption) {
+                const storageValue = service.more_info.storage;
+                newFormData["Szerver tárhely"] = storageValue > 1024 ? storageValue : storageValue * 1024;
+            }
         }
 
-        // CPU beállítása
         const cpuOption = configOptions.find(opt => opt.label === "CPU mag");
         if (cpuOption) {
-            newFormData["CPU mag"] = service.more_info.cpu;
+            newFormData["CPU mag"] = service.more_info.cpu || cpuOption.default || cpuOption.min;
         }
 
-        // OS beállítása (ha van ilyen információ a service-ben)
-        const osOption = configOptions.find(opt => opt.label === "Operációs rendszer");
-        if (osOption && service.more_info.os) {
-            newFormData["Operációs rendszer"] = service.more_info.os;
-        } else if (osOption) {
-            newFormData["Operációs rendszer"] = osOption.options?.[0] || "";
+        if (service.type === 'game') {
+            const cpuUsageOption = configOptions.find(opt => opt.label === "CPU használat");
+            if (cpuUsageOption) {
+                newFormData["CPU használat"] = service.more_info.cpu || cpuUsageOption.default || cpuUsageOption.min;
+            }
         }
 
         setConfigFormData(newFormData);
-        setOriginalConfig({...newFormData});
+        setOriginalConfig({ ...newFormData });
         calculateTotalPrice(newFormData);
     }, [service, configOptions]);
 
@@ -141,7 +146,6 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
                 type: service.type,
                 storage_uuid: other.storage_uuid,
                 originalConfig: originalConfig,
-                
             });
 
             if (response.status !== 200) {
@@ -150,7 +154,6 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
 
             toast.success('A konfiguráció módosítása sikeres volt');
 
-            // Callback a sikeres frissítés után
             if (onSuccess) {
                 onSuccess();
             }
@@ -165,14 +168,12 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
         }
     };
 
-    // Betöltjük a konfigurációs lehetőségeket, amikor a service betöltődik
     useEffect(() => {
         if (service?.type) {
             fetchConfigOptions();
         }
     }, [service?.type, fetchConfigOptions]);
 
-    // Betöltjük a jelenlegi konfigurációt, amikor a konfigurációs lehetőségek betöltődtek
     useEffect(() => {
         if (service && configOptions.length > 0) {
             loadCurrentConfig();

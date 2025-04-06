@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import axios from 'axios';
+import { updateServiceConfiguration } from '@/lib/pterodactyl';
 
 export async function POST(
     request: NextRequest,
@@ -68,83 +69,110 @@ export async function POST(
         const moreInfo = JSON.parse(service.more_info);
         const updatedConfig: { ram?: number; disk?: number; cpu?: number; os?: string } = {};
 
-        if (configData['Szerver ram'] && configData['Szerver ram'] !== originalConfig['Szerver ram']) {
-            moreInfo.ram = configData['Szerver ram'];
+        if (type === 'game') {
+            updatedConfig['ram'] = configData['Szerver ram'] || originalConfig['Szerver ram'];
+            updatedConfig['disk'] = configData['Szerver tárhely'] || originalConfig['Szerver tárhely'];
+            updatedConfig['cpu'] = configData['CPU használat'] || originalConfig['CPU használat'];
+            moreInfo.ram = updatedConfig['ram'];
             moreInfo.ram_unit = 'MB';
-            updatedConfig['ram'] = configData['Szerver ram'];
-        }
-
-        if (configData['Szerver tárhely'] && configData['Szerver tárhely'] !== originalConfig['Szerver tárhely']) {
-            moreInfo.disk = configData['Szerver tárhely'];
+            moreInfo.disk = updatedConfig['disk'];
             moreInfo.disk_unit = 'MB';
-            updatedConfig['disk'] = configData['Szerver tárhely'];
-        }
-
-        if (configData['CPU mag'] && configData['CPU mag'] !== originalConfig['CPU mag']) {
-            moreInfo.cpu = configData['CPU mag'];
-            updatedConfig['cpu'] = configData['CPU mag'];
-        }
-
-        if (configData['Operációs rendszer'] && configData['Operációs rendszer'] !== originalConfig['Operációs rendszer']) {
-            moreInfo.os = configData['Operációs rendszer'];
-            updatedConfig['os'] = configData['Operációs rendszer'];
-        }
-
-        let newPrice = service.price;
-
-        await db.service.update({
-            where: {
-                id: serviceId
-            },
-            data: {
-                more_info: JSON.stringify(moreInfo),
-                price: newPrice
+            moreInfo.cpu = updatedConfig['cpu'];
+        } else {
+            if (configData['Szerver ram'] && configData['Szerver ram'] !== originalConfig['Szerver ram']) {
+                moreInfo.ram = configData['Szerver ram'];
+                moreInfo.ram_unit = 'MB';
+                updatedConfig['ram'] = configData['Szerver ram'];
             }
-        });
+
+            if (configData['Szerver tárhely'] && configData['Szerver tárhely'] !== originalConfig['Szerver tárhely']) {
+                moreInfo.disk = configData['Szerver tárhely'];
+                moreInfo.disk_unit = 'MB';
+                updatedConfig['disk'] = configData['Szerver tárhely'];
+            }
+
+            if (configData['CPU mag'] && configData['CPU mag'] !== originalConfig['CPU mag']) {
+                moreInfo.cpu = configData['CPU mag'];
+                updatedConfig['cpu'] = configData['CPU mag'];
+            }
+
+            if (configData['Operációs rendszer'] && configData['Operációs rendszer'] !== originalConfig['Operációs rendszer']) {
+                moreInfo.os = configData['Operációs rendszer'];
+                updatedConfig['os'] = configData['Operációs rendszer'];
+            }
+        }        let newPrice = service.price;
 
         if (type === 'vps' && service.vm_id && Object.keys(updatedConfig).length > 0) {
             try {
-                const vpsConfig: { id: number; storage_uuid: any; ram?: number; disk?: number; cpu?: number; os?: string } = {
+                const vpsConfig: { id: number; ram?: number; disk?: number; cpu?: number; os?: string } = {
                     id: service.vm_id,
-                    storage_uuid: storage_uuid
                 };
 
                 if (updatedConfig.ram) vpsConfig['ram'] = updatedConfig.ram;
                 if (updatedConfig.disk) vpsConfig['disk'] = updatedConfig.disk / 1024;
                 if (updatedConfig.cpu) vpsConfig['cpu'] = updatedConfig.cpu;
-                if (updatedConfig.os) vpsConfig['os'] = updatedConfig.os;
+                // if (updatedConfig.os) vpsConfig['os'] = updatedConfig.os;
 
                 const response = await axios.post(`${process.env.VIRTUALIZOR_API_URL}/manageVPS.php`, vpsConfig, {
                     headers: {
                         'Authorization': `Bearer ${process.env.VIRTUALIZOR_API_KEY}`
                     }
                 });
-                console.log('Virtualizor config updated:', response.data);
+
+                const responseData = response.data as { error?: string };
+                if (responseData.error) {
+                    return NextResponse.json({ error: responseData.error }, { status: 500 });
+                }
+
+                await db.service.update({
+                    where: {
+                        id: serviceId
+                    },
+                    data: {
+                        more_info: JSON.stringify(moreInfo),
+                        price: newPrice
+                    }
+                });
             } catch (error) {
                 console.error('Error updating Virtualizor config:', error);
             }
         }
 
-        if (type === 'game' && service.pterodactyl_id && Object.keys(updatedConfig).length > 0) {
+        if (type === 'game' && service.pterodactyl_id ) {
             try {
-                const gameConfig: { ram?: number; disk?: number; cpu?: number } = {};
-                if (updatedConfig.ram) gameConfig['ram'] = updatedConfig.ram;
-                if (updatedConfig.disk) gameConfig['disk'] = updatedConfig.disk;
-                if (updatedConfig.cpu) gameConfig['cpu'] = updatedConfig.cpu;
-
-                await axios.post(`${process.env.PTERODACTYL_API_URL}/servers/${service.pterodactyl_id}/update-config`, gameConfig, {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.PTERODACTYL_API_KEY}`
+                const vpsConfig: { id: number; ram?: number; disk?: number; cpu?: number; os?: string } = {
+                    id: Number(service.pterodactyl_id),
+                    ram: updatedConfig.ram,
+                    disk: updatedConfig.disk,
+                    cpu: updatedConfig.cpu,
+                };
+                if (service.panel_id !== null) {
+                    const response = await updateServiceConfiguration(service.panel_id.toString(), vpsConfig);
+                    if (response.success) {
+                        await db.service.update({
+                            where: {
+                                id: serviceId
+                            },
+                            data: {
+                                more_info: JSON.stringify(moreInfo),
+                                price: newPrice
+                            }
+                        });
+                    } else {
+                        return NextResponse.json({ error: 'Hiba történt a konfiguráció módosítása' }, { status: 500 });
                     }
-                });
+                } else {
+                    return NextResponse.json({ error: 'Hiba történt a konfiguráció módosítása közben' }, { status: 500 });
+                }
             } catch (error) {
-                console.error('Error updating Pterodactyl config:', error);
+                return NextResponse.json(
+                    { error: 'Hiba történt a szerver konfigurációjának frissítése közben.' },
+                    { status: 500 }
+                );
             }
-        }
-
+        }        
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error updating service configuration:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

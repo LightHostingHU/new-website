@@ -34,7 +34,6 @@ interface ServerDetailsProps {
 }
 
 export default function ServerDetails({ service }: ServerDetailsProps) {
-    console.log("ServerDetails component rendered with service:", service);
     return (
         <Card className="overflow-hidden border-border/60 shadow-sm hover:shadow-md transition-shadow duration-300">
             <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 pb-3">

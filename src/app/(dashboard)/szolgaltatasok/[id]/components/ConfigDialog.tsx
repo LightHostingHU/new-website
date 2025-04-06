@@ -32,10 +32,6 @@ export default function ConfigDialog({ service, isOpen, onOpenChange, onSuccess 
         onOpenChange(false);
         if (onSuccess) onSuccess();
     });
-
-    console.log("Config Options:", configOptions);
-    console.log("Config Form Data:", configFormData);
-
     const handleSave = async () => {
         const success = await updateServiceConfiguration();
         if (success) {
