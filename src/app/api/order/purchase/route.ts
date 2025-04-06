@@ -14,10 +14,10 @@ interface ServerResponse {
   success: boolean;
   message?: string;
   pterodactyl_id?: string;
+  vm_id?: string;
 }
 
 export async function POST(req: NextRequest) {
-  console.time("Total Request Time");
   try {
     const {
       username,
@@ -62,7 +62,6 @@ export async function POST(req: NextRequest) {
             os: config["Operációs rendszer"],
           };
 
-    console.time("User and Last Service Fetch");
     const [user, lastService] = await Promise.all([
       db.user.findUnique({
         where: { username },
@@ -70,7 +69,6 @@ export async function POST(req: NextRequest) {
       }),
       db.service.findFirst({ orderBy: { id: "desc" }, select: { id: true } }),
     ]);
-    console.timeEnd("User and Last Service Fetch");
 
     if (!user) {
       return NextResponse.json(
@@ -80,16 +78,16 @@ export async function POST(req: NextRequest) {
     }
     if (user.money < price) {
       return NextResponse.json(
-        { success: false, message: "Nincs elegendő pénz." },
+        { success: false, message: "Nincs elegendő pénz.", status: "not_enough_money"},
         { status: 400 }
       );
     }
 
     let pterodactyl_id: string | undefined;
     let serverResponse: ServerResponse;
+    let vm_id: string | undefined;
 
     if (serviceType === "game") {
-      console.time("Pterodactyl User & Server Creation");
       const pterouser = await checkOrCreatePterodactylUser(user.email);
       serverResponse = await createPterodactylServer(
         pterouser.attributes.id,
@@ -99,7 +97,6 @@ export async function POST(req: NextRequest) {
         other,
         price
       );
-      console.timeEnd("Pterodactyl User & Server Creation");
 
       if (!serverResponse.success) {
         return NextResponse.json(
@@ -114,7 +111,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (serviceType === "vps") {
-      console.time("Virtualizor Server Creation");
       const virtualizorUser = await checkOrCreateVirtualiozorUser(user.email);
       const root_password = generatePassword(16);
 
@@ -149,23 +145,23 @@ export async function POST(req: NextRequest) {
         parseInt(configData.ram),
         parseInt(configData.cpu)
       );
-      console.timeEnd("Virtualizor Server Creation");
 
       if (rawServerResponse.status !== "success") {
         return NextResponse.json(
           {
             success: false,
-            message: `Hiba történt a VPS létrehozásakor: ${rawServerResponse.message}`,
+            message: `${rawServerResponse.message}`,
           },
           { status: 500 }
         );
       }
+      vm_id = rawServerResponse.data?.data?.vs_info.vpsid;
     }
 
-    console.time("Database Update");
     await db.service.create({
       data: {
         user_id: user.id,
+        service_name: serviceName,
         service_id: serviceId,
         more_info: JSON.stringify(configData),
         price,
@@ -174,6 +170,7 @@ export async function POST(req: NextRequest) {
         expire_date: new Date(new Date().setMonth(new Date().getMonth() + 1)),
         status: "active",
         pterodactyl_id,
+        vm_id: vm_id ? parseInt(vm_id, 10) : undefined
       },
     });
 
@@ -181,9 +178,7 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: { money: { decrement: price } },
     });
-    console.timeEnd("Database Update");
-
-    console.timeEnd("Total Request Time");
+    
     return NextResponse.json(
       { success: true, message: "Szolgáltatás sikeresen létrehozva!" },
       { status: 200 }

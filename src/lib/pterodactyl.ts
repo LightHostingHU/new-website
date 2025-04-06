@@ -4,9 +4,15 @@ import { authOptions } from "./auth";
 import axios from "axios";
 import { NextResponse } from "next/server";
 import { config } from "process";
+import { db } from "./db";
+import { wait } from "./utils";
 
 const PTERODACTYL_API_KEY = process.env.PTERODACTYL_API_KEY;
 const PTERODACTYL_API_URL = process.env.PTERODACTYL_API_URL;
+const PTERODACTYL_CLIENT_API_KEY =
+  process.env.PTERODACTYL_CLIENT_API_KEY;
+const PTERODACTYL_CLIENT_API_URL =
+  process.env.PTERODACTYL_CLIENT_API_URL;
 
 // Pterodactyl felhasználó ellenőrzése
 export async function checkPterodactylUser(email: string) {
@@ -24,7 +30,7 @@ export async function checkPterodactylUser(email: string) {
 }
 
 // Pterodactyl felhasználó ellenőrzése vagy létrehozása
-export async function checkOrCreatePterodactylUser(email: string) {
+export async function checkOrCreatePterodactylUser(email: any) {
   const session = await getServerSession(authOptions);
   if (!session) {
     throw new Error("Nincs bejelentkezve!");
@@ -76,7 +82,6 @@ export async function createPterodactylServer(
   let nodeId = other.nodeId;
   let variables = other.variables;
 
-  console.log("Other",other)
   if (Number(serviceId) === 30) {
     if (configData.backend === "NodeJs") {
       eggId = other.variables.nodejs.id;
@@ -121,7 +126,6 @@ export async function createPterodactylServer(
     environment: variables,
   };
 
-  console.log("Küldött serverData:", JSON.stringify(serverData, null, 2));
   try {
     const response = await axios.post<{ attributes: { identifier: string } }>(
       `${PTERODACTYL_API_URL}/servers`,
@@ -147,8 +151,7 @@ export async function createPterodactylServer(
         message: "Szerver létrehozása sikertelen!",
       };
     }
-  } catch (error) {
-    console.log('error in createPterodactylServer',error);
+  } catch (error) { 
     return {
       success: false,
       message: "Hiba történt a kérés feldolgozása során.",
@@ -237,6 +240,7 @@ export async function changePterodactylPowerState(
         },
       }
     );
+
     return res.data;
   } catch (error: any) {
     console.error("Pterodactyl API Error Details:", {
@@ -252,3 +256,83 @@ export async function changePterodactylPowerState(
     );
   }
 }
+
+export async function checkAndUpdateStatus(pteroId: string, serviceId: string) {
+  let maxAttempts = 10;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const status = await getPterodactylServerStatus(pteroId);
+
+    if (status === "running") {
+      await db.service.update({
+        where: { id: Number(serviceId) },
+        data: { status: "active" },
+      });
+      break;
+    } else if (status === "offline") {
+      await db.service.update({
+        where: { id: Number(serviceId) },
+        data: { status: "offline" },
+      });
+      break;
+    } else if (status === "starting") {
+      await db.service.update({
+        where: { id: Number(serviceId) },
+        data: { status: "starting" },
+      });
+      break;
+    }
+
+    await wait(5000);
+  }
+}
+
+
+export async function getPterodactylServerInfo(pterodactyl_id: string) {
+  const apiKey = process.env.PTERODACTYL_CLIENT_API_KEY;
+  const apiUrl = process.env.PTERODACTYL_API_CLIENT_URL;
+
+  if (!apiKey || !apiUrl) {
+    throw new Error("Pterodactyl API configuration is missing");
+  }
+  try {
+    const res = await axios.get(`${apiUrl}/servers/${pterodactyl_id}`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.errors?.[0]?.detail ||
+      error.response?.data?.error ||
+      "Failed to fetch server resources"
+    );
+  }
+}
+
+export async function getPterodactylServerStatus(serverId: string) {
+  try{
+    console.log("serverId", serverId);
+    const apiKey = process.env.PTERODACTYL_CLIENT_API_KEY;
+    const apiUrl = process.env.PTERODACTYL_API_CLIENT_URL;
+
+    const res = await fetch(`${apiUrl}/servers/${serverId}/resources`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    });
+
+    const json = await res.json();
+    return json?.attributes?.current_state; // e.g., "running", "offline", "starting"
+  } catch (error) {
+    console.error("Error fetching server status:", error);
+    throw error;
+  }
+}
+

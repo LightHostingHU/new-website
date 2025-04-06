@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
-export default function ResetPasswordPage() {
+const ResetPasswordPage = () => {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [isValidToken, setIsValidToken] = useState(false)
@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
                                 <Button variant="link" className="w-full mt-4" asChild>
                                     <Link href="/forgot-password">Új visszaállítási link kérése</Link>
                                 </Button>
-                            </div>    
+                            </div>
                         ) : (
                             'Token ellenőrzése...'
                         )}
@@ -157,4 +157,18 @@ export default function ResetPasswordPage() {
             </Card>
         </div>
     )
-}
+};
+
+const ResetPasswordWrapper = () => (
+    <Suspense fallback={<div className="container relative flex-col items-center justify-center self-center pt-24">
+        <Card className="mx-auto w-full max-w-lg">
+            <CardContent className="p-6">
+                Token ellenőrzése...
+            </CardContent>
+        </Card>
+    </div>}>
+        <ResetPasswordPage />
+    </Suspense>
+)
+
+export default ResetPasswordWrapper

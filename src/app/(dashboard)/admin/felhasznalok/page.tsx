@@ -156,15 +156,14 @@ export default function FelhasznalokPage() {
     );
 
     const sortedUsers = [...filteredUsers].sort((a, b) => {
-        const aValue = typeof a[sortField] === "string" ? a[sortField].toLowerCase() : a[sortField]?.toString() ?? "";
-        const bValue = typeof b[sortField] === "string" ? b[sortField].toLowerCase() : b[sortField]?.toString() ?? "";
+        const aValue = typeof a[sortField as keyof SelectedUser] === "string" ? (a[sortField as keyof SelectedUser] as string).toLowerCase() : a[sortField as keyof SelectedUser]?.toString() ?? "";
+        const bValue = typeof b[sortField as keyof SelectedUser] === "string" ? (b[sortField as keyof SelectedUser] as string).toLowerCase() : b[sortField as keyof SelectedUser]?.toString() ?? "";
         if (sortDirection === "asc") {
             return aValue.localeCompare(bValue);
         } else {
             return bValue.localeCompare(aValue);
         }
     });
-
     if (isLoading) {
         return <DashboardLayout>
             <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen flex items-center justify-center">

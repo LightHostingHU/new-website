@@ -10,7 +10,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function GET(req: Request, res: Response): Promise<Response> {
+export async function GET(req: NextRequest): Promise<Response> {
     const sessionLogin = await getServerSession(authOptions);
     if (!sessionLogin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

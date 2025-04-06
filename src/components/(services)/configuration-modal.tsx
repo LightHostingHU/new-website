@@ -73,13 +73,7 @@ interface ServiceOption {
 }
 
 interface ServiceOther {
-    variables?: Record<string, string | number>;
-    eggId?: string;
-    nestId?: string;
-    nodeId?: string;
-    server_id?: string;
-    storage_id?: string;
-    storage_uidd?: string;
+
 }
 
 interface Service {
@@ -122,30 +116,14 @@ export function ConfigurationModal({
     }, [status, session, router]);
 
     useEffect(() => {
-        // Az options objektumot inicializáljuk
         const initialConfig: Record<string, number | string> = {};
         service.options.forEach((option) => {
             initialConfig[option.label] = option.min ?? 0;
         });
         setConfig(initialConfig);
 
-        const initialOther: Record<string, string> = {};
-        if (Array.isArray(service.other) && service.other.length > 0) {
-            const firstOther = service.other[0];
-
-            Object.entries(firstOther).forEach(([key, value]) => {
-                if (
-                    typeof value === "object" &&
-                    value !== null &&
-                    key !== "variables"
-                ) {
-                    initialOther[key] = String(value);
-                } else {
-                    initialOther[key] = value;
-                }
-            });
-        }
-        setOther(initialOther);
+        const initialOther = service.other
+        setOther(initialOther as Record<string, string>);
     }, [service]);
 
     useEffect(() => {
@@ -217,9 +195,10 @@ export function ConfigurationModal({
             }
 
             const responseData = await response.json();
-            console.log("responseData", responseData);
             if (responseData.success) {
                 toast.success("Sikeres vásárlás!");
+            } else if (responseData.status == "not_enough_money") {
+                toast.error("Nincs elegendő egyenleg a vásárláshoz");
             } else {
                 console.error("Hiba történt a konfiguráció elküldésekor", responseData);
             }

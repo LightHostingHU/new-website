@@ -113,6 +113,7 @@ model ServiceList {
 model Service {
   id             Int      @id @default(autoincrement())
   user_id        Int      @db.Int
+  service_name  String   @db.VarChar(255)
   service_id     Int      @db.Int
   type           String   @db.VarChar(255)
   buy_date       DateTime @db.DateTime
@@ -121,7 +122,8 @@ model Service {
   more_info      String   @db.LongText
   price          Int
   status         String
-  pterodactyl_id String?
+  pterodactyl_id String? @unique
+  vm_id         Int?     @db.Int @unique
 
   user User @relation(fields: [user_id], references: [id], name: "UserServices")
 }

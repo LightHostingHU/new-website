@@ -4,6 +4,9 @@ import {db} from "@/lib/db";
 interface RequestParams {
     id: string;
 }
+type RouteContext = {
+    params: Promise<RequestParams>;
+};
 
 interface UserRow {
     id: number;
@@ -15,7 +18,8 @@ interface UserRow {
     avatar: string;
 }
 
-export async function GET(req: NextRequest, { params }: { params: RequestParams }) {
+export async function GET(req: NextRequest, context: RouteContext) {
+    const params = context.params;
     const { id: userId } = await params; 
 
     try {
@@ -42,7 +46,8 @@ export async function GET(req: NextRequest, { params }: { params: RequestParams 
     }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: RequestParams }) {
+export async function PUT(req: NextRequest, context: RouteContext) {
+    const params = context.params;
     const {id: userId } =  await params;
     const { firstname, lastname, email, username, permission } = await req.json();
 

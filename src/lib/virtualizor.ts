@@ -4,6 +4,8 @@ import axios from "axios";
 import crypto from "crypto";
 import { sendVirtualizorRegistrationEmail } from "./email";
 import { headers } from "next/headers";
+import { db } from "./db";
+import { wait } from "./utils";
 
 const virtualizorApiURL = "http://37.221.214.105:2005";
 
@@ -44,7 +46,7 @@ export async function checkVirtualizorUser(email: string) {
   }
 }
 
-export async function checkOrCreateVirtualiozorUser(email: string) {
+export async function checkOrCreateVirtualiozorUser(email: any) {
   const session = await getServerSession(authOptions);
   const virtualizoruser = await checkVirtualizorUser(email);
 
@@ -133,20 +135,37 @@ export async function createVirtualizorServer(
   cpu: number
 ) {
   try {
-    console.log('Creating Virtualizor server with params:', {
-      server_id: serverId,
-      user_id: userId,
-      user_email: userEmail,
-      osid: osids.find((item) => item.name === osId)?.osid || 0,
-      hostname: hostname,
-      storage_id: storageId,
-      storage_limit: storageLimit / 1024,
-      storage_uuid: storageUUID,
-      ram: ram,
-      core: cpu
-    });
+    // console.log('Creating Virtualizor server with params:', {
+    //   server_id: serverId,
+    //   user_id: userId,
+    //   user_email: userEmail,
+    //   osid: osids.find((item) => item.name === osId)?.osid || 0,
+    //   hostname: hostname,
+    //   storage_id: storageId,
+    //   storage_limit: storageLimit / 1024,
+    //   storage_uuid: storageUUID,
+    //   ram: ram,
+    //   core: cpu
+    // });
 
-    const response = await axios.post(
+    interface CreateVPSResponse {
+      status: string;
+      message: string;
+      data?: {
+        status: string;
+        vs_info: {
+          id: string;
+          hostname: string;
+          osid: string;
+          ram: string;
+          cpu: string;
+          disk: string;
+          vpsid: string;
+        };
+      };
+    }
+
+    const response = await axios.post<CreateVPSResponse>(
       `${virtualizorApiURL}/createVPS.php`,
       {
         server_id: serverId,
@@ -168,7 +187,15 @@ export async function createVirtualizorServer(
         },
       }
     );
-    console.log('Virtualizor server creation response:', response.data);
+    const data = response.data;
+    const vm = data;
+    
+    if (vm.status !== "success") {
+      return {
+        status: "error",
+        error_message: vm.message ,
+      };
+    }
     return {
       status: "success",
       message: "Server created successfully",
@@ -177,5 +204,119 @@ export async function createVirtualizorServer(
   } catch (error) {
     console.error("Error creating Virtualizor server:", error);
     return { status: "error", message: "Failed to create server" };
+  }
+}
+
+export async function getVirtualizorServerResourceUsage(serverId: string) {
+  try {
+    const response = await axios.post(
+      `${virtualizorApiURL}/getInfo.php`,
+      {
+        id: serverId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+
+    checkVirtualizorStatusAndUpdate(serverId);
+    return {
+      status: "success",
+      message: "Server resource usage retrieved successfully",
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Error retrieving server resource usage:", error);
+    return { status: "error", message: "Failed to retrieve server resource usage" };
+  }
+}
+
+export async function getVirtualizorServerRestart(serverId: string) {
+  try {
+    const response = await axios.post(
+      `${virtualizorApiURL}/restartVPS.php`,
+      {
+        id: serverId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+
+    checkVirtualizorStatusAndUpdate(serverId);
+    return {
+      status: "success",
+      message: "Server restarted successfully",
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Error restarting server:", error);
+    return { status: "error", message: "Failed to restart server" };
+  }
+}
+
+export async function getVirtualizorServerStatus(serverId: string) {
+  try {
+    const response = await axios.post(
+      `${virtualizorApiURL}/getInfo.php`,
+      {
+        id: serverId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+    return {
+      status: "success",
+      message: "Server status retrieved successfully",
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Error retrieving server status:", error);
+    return { status: "error", message: "Failed to retrieve server status" };
+  }
+}
+
+export async function checkVirtualizorStatusAndUpdate(serverId: string) {
+  let maxAttempts = 10;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const response = await getVirtualizorServerStatus(serverId);
+    const vpsData = response.data as { data: Record<string, { status: { status: string } }> };
+    const status = Number(vpsData.data[serverId].status);
+
+    console.log("Server ID:", serverId);
+    console.log("Virtualizor status:", status);
+
+    if (status === 1) {
+      await db.service.update({
+        where: { vm_id: Number(serverId) },
+        data: { status: "active" },
+      });
+      break;
+    } else if (status === 2) {
+      await db.service.update({
+        where: { vm_id: Number(serverId) },
+        data: { status: "suspended" },
+      });
+      break;
+    } else if (status === 0) {
+      await db.service.update({
+        where: { vm_id: Number(serverId) },
+        data: { status: "offline" },
+      });
+      break;
+    }
+
+    await wait(5000); // 5 mp várás
   }
 }

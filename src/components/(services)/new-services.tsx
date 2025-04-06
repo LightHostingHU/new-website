@@ -244,7 +244,7 @@ const NewServices = () => {
                                     </CardContent>
                                     <CardFooter className={`border-t ${theme === 'dark' ? 'border-slate-700' : 'border-gray-200'} pt-4`}>
                                         <Button
-                                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300"
+                                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 text-white text-center font-bold"
                                             onClick={() => setSelectedService(service)}
                                         >
                                             {service.name} Vásárlása

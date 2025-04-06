@@ -10,6 +10,7 @@ import axios from "axios"
 import { toast } from "sonner"
 import { signIn, useSession } from "next-auth/react"
 import { error } from "console"
+import Image from "next/image"
 
 export function Settings() {
     const session = useSession()
@@ -18,9 +19,10 @@ export function Settings() {
         lastname: string;
         email: string;
         avatar?: string;
-        profilePicture?: string;
+        profilePicture?: any;
         discordConnected?: boolean;
         discordUsername?: string;
+        
     }>({
         firstname: "",
         lastname: "",
@@ -34,7 +36,7 @@ export function Settings() {
         confirmPassword: ""
     })
     const [discordConnected, setDiscordConnected] = useState(false);
-    const [discordData, setDiscordData] = useState(false);
+    const [discordData, setDiscordData] = useState<{ username?: string } | null>(null);
 
     useEffect(() => {
         fetchUserData()
@@ -44,7 +46,7 @@ export function Settings() {
         try {
             const [profileResponse, pictureResponse] = await Promise.all([
                 axios.get<{ firstname: string; lastname: string; email: string; phone: string; discordConnected: boolean }>('/api/user/profile'),
-                axios.get<{ profilePicture: string }>('/api/user/profile-picture')
+                axios.get<{ avatar: string }>('/api/user/profile-picture')
             ])
 
             setUserData({
@@ -174,7 +176,9 @@ export function Settings() {
                                     <div className="flex items-center gap-4">
                                         {userData.profilePicture ? (
                                             <div className="flex items-center gap-4">
-                                                <img
+                                                <Image
+                                                    width={80}
+                                                    height={80}
                                                     src={userData.profilePicture}
                                                     alt="Profile"
                                                     className="w-20 h-20 rounded-full object-cover"
@@ -293,7 +297,7 @@ export function Settings() {
                                         <Label className="text-base">Discord fiók</Label>
                                         <p className="text-sm text-slate-500 dark:text-slate-400">
                                             {discordConnected
-                                                ? `Összekapcsolva: ${discordData.username}`
+                                                ? `Összekapcsolva: ${discordData?.username || 'N/A'}`
                                                 : 'Nincs összekapcsolva'}
                                         </p>
                                     </div>

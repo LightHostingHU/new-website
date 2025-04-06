@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 
 interface Service {
   id: string;
+  pterodactyl_id: string;
+  vm_id: string;
   user_id: string;
 }
 
@@ -19,7 +21,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
 
-  const userId = parseInt(session.user.userid, 10)
+  const userId = parseInt(session.user.id, 10)
 
   try {
     const services = await db.service.findMany({

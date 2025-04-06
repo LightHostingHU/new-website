@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const userId = session.user.userid as string;
+    const userId = session.user.id as string;
     const user = await db.user.findUnique({
       where: { id: Number(userId) },
       select: { avatar: true },
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
       type: "stream",
     });
 
-    const userId = session.user.userid as string;
+    const userId = session.user.id as string;
     await db.user.update({
       where: { id: Number(userId) },
       data: { avatar: filename },
@@ -176,7 +176,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const userId = session.user.userid as string;
+    const userId = session.user.id as string;
     await db.user.update({
       where: { id: Number(userId) },
       data: { avatar: "default.png" },

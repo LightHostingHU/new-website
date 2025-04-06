@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+
+type RouteContext = {
+  params: Promise<{
+    services_id: string;
+  }>;
+};
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { services_id: string } }
+  context: RouteContext
 ) {
-  const { services_id } = await params;
+  const services_id = (await context.params).services_id;
 
   try {
     const serviceId = parseInt(services_id);

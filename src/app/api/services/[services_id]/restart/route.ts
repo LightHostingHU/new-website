@@ -3,43 +3,53 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { changePterodactylPowerState } from "@/lib/pterodactyl";
+import { changePterodactylPowerState, checkAndUpdateStatus, getPterodactylServerInfo } from "@/lib/pterodactyl";
+
+type RouteContext = {
+  params: Promise<{
+    services_id: string;
+  }>;
+}
 
 export async function POST(
   req: Request,
-  { params }: { params: { services_id: string } }
+  context: RouteContext
 ) {
   try {
-    const { services_id } = await params;
+    const services_id = (await context.params).services_id;
     const session = await getServerSession(authOptions);
     const serverId = services_id;
 
     if (!session) {
-      return 
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    console.log(serverId)
-    const data = await changePterodactylPowerState(serverId, "restart");
-    console.log(data)
-    // const service = await db.service.findFirst({
-    //   where: {
-    //     user_id: Number(session.user.userid),
-    //     pterodactyl_id: serverId,
-    //   },
-    // });
+    // Szerver újraindítása
+    const data = await changePterodactylPowerState(serverId.toString(), "restart");
+    console.log('data in restart' ,data);
 
-    // if (!service) {
-    //   return new NextResponse("Not found", { status: 404 });
-    // }
+    const service = await db.service.findFirst({
+      where: {
+        user_id: Number(session.user.id),
+        pterodactyl_id: serverId,
+      },
+    });
 
-    // await db.service.update({
-    //   where: {
-    //     id: Number(params.serverId),
-    //   },
-    //   data: {
-    //     status: "restarting",
-    //   },
-    // });
+    if (!service) {
+      return new NextResponse("Not found", { status: 404 });
+    }
+
+    // Állapot beállítása "restarting"-re
+    await db.service.update({
+      where: {
+        id: service.id,
+      },
+      data: {
+        status: "restarting",
+      },
+    });
+
+    checkAndUpdateStatus(serverId.toString(), service.id.toString());
 
     return NextResponse.json({ message: "Service restart initiated" });
   } catch (error) {

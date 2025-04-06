@@ -1,8 +1,15 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {db} from "@/lib/db";
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string, couponId: string } }) {
-    const { id, couponId } = params;
+type RouteContext = {
+    params: Promise<{
+        id: string;
+        couponId: string;
+    }>;
+};
+
+export async function DELETE(request: NextRequest, context: RouteContext)  {
+    const { id, couponId } = await context.params;
 
     try {
         const result = await db.coupons.deleteMany({
@@ -13,19 +20,19 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         });
 
         if (result.count === 0) {
-            return new Response(
+            return new NextResponse(
                 JSON.stringify({ error: "Kupon nem található" }),
                 { status: 404 }
             );
         }
 
-        return new Response(
+        return new NextResponse(
             JSON.stringify({ success: true, message: "Kupon törölve!" }),
             { status: 200 }
         );
     } catch (error) {
         console.error("Hiba a kupon törlése során:", error);
-        return new Response(
+        return new NextResponse(
             JSON.stringify({ error: "Szerverhiba" }),
             { status: 500 }
         );
