@@ -13,7 +13,7 @@ export async function PUT(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userId = session.user.userid as string;
+    const userId = session.user.id as string;
     const body = await req.json();
     const { currentPassword, newPassword, confirmPassword } = body;
 
@@ -37,7 +37,7 @@ export async function PUT(req: Request) {
 
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
-      user.password
+      user.password as string
     );
 
     if (!isPasswordValid) {

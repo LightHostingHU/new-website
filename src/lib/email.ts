@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
-import { getResetPasswordEmailTemplate } from "./(templates)/(password)/email-template";
 import nodemailer from "nodemailer";
 import path from "path";
+import { getResetPasswordEmailTemplate } from "./(templates)/(password)/email-template";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
@@ -19,8 +19,8 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 
   const html = getResetPasswordEmailTemplate({
     resetLink,
-    supportEmail: process.env.SUPPORT_EMAIL || "support@example.com",
-    appName: process.env.APP_NAME,
+    supportEmail: process.env.SUPPORT_EMAIL || "",
+    appName: process.env.APP_NAME || "LightHosting",
   });
 
   try {

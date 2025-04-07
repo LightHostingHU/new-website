@@ -12,10 +12,8 @@ export async function GET() {
             other: service.other ? JSON.parse(service.other) : {},
             gradientColors: service.gradientColors,
         }));
-        console.log("other in 15. line ", services.map(service => service.other));
         return NextResponse.json(services);
     } catch (err) {
-        console.error('Database error:', err);
         return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 }

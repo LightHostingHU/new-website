@@ -1,14 +1,14 @@
 import { db } from "@/lib/db";
 import { NextRequest } from "next/server";
 
-interface RouteParams {
-    params: {
+type RouteContext = {
+    params: Promise<{
         id: string;
-    }
+    }>
 }
 
-export async function POST(request: NextRequest, { params }: RouteParams) {
-    const { id } = params;
+export async function POST(request: NextRequest, context: RouteContext) {
+    const id = (await context.params).id;
     const { reason } = await request.json();
 
     if (!reason) {
@@ -39,9 +39,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-    const { id } = params;
-
+export async function DELETE(request: NextRequest, context: RouteContext) {
+    const id = (await context.params).id;
     try {
         const deletedBan = await db.bans.deleteMany({
           where: {

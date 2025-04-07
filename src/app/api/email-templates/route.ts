@@ -1,12 +1,16 @@
+export async function GET() {
+  return new Response('Method not allowed', { status: 405 });
+}
+
 interface ResetPasswordEmailParams {
   resetLink: string;
   supportEmail: string;
   appName: string;
 }
 
-export function getResetPasswordEmailTemplate(
+const getResetPasswordEmailTemplate = (
   params: ResetPasswordEmailParams
-) {
+) => {
   return `
     <!DOCTYPE html>
     <html>

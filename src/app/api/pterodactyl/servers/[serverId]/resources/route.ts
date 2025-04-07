@@ -1,9 +1,14 @@
 import { getPterodactylServerResourceUsage } from "@/lib/pterodactyl";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { serverId: string } }) {
-    const { serverId } = await params;
+type RouteContext = {
+    params: Promise<{
+        serverId: string;
+    }>;
+};
 
+export async function GET(request: NextRequest, context: RouteContext) {
+    const serverId = (await context.params).serverId;
 
     try {
         const data = await getPterodactylServerResourceUsage(serverId);

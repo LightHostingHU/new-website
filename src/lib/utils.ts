@@ -14,3 +14,6 @@ export const generatePassword = (length = 12) => {
   }
   return password;
 };
+
+export const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+

@@ -5,6 +5,10 @@ interface Params {
   id: string;
 }
 
+type RouteContext = {
+  params: Promise<Params>;
+};
+
 interface Row {
   id: number;
   user_id: number;
@@ -14,7 +18,8 @@ interface Row {
   is_active: boolean;
 }
 
-export async function GET(req: NextRequest, { params }: { params: Params }) {
+export async function GET(req: NextRequest, context: RouteContext) {
+  const params = context.params;
   const { id: userId } = await params;
 
   try {;
@@ -40,7 +45,8 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Params }) {
+export async function POST(req: NextRequest, context: RouteContext) {
+  const params = context.params;
   const { id: userId } = await params;
   const { code, discount, expiryDate, isActive } = await req.json();
 

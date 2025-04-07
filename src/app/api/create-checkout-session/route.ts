@@ -11,7 +11,7 @@ interface RequestBody {
     email: string;
 }
 
-export async function POST(req: Request, res: Response): Promise<Response> {
+export async function POST(req: Request): Promise<Response> {
     try {
         const body: RequestBody = await req.json();
         const { amount } = body;

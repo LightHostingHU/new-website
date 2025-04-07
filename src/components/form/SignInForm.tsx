@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 const FormSchema = z.object({
   identifier: z.string().min(1, 'Email or username is required'),
@@ -28,7 +29,7 @@ const FormSchema = z.object({
 
 const SignInForm = () => {
   const router = useRouter();
-
+  
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -60,7 +61,7 @@ const SignInForm = () => {
       <Form {...form}>
         <div className='flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen lg:py-0'>
           <a href="#" className="flex items-center mb-8 text-3xl font-bold text-white">
-            <img className="w-10 h-10 mr-3" src="/logo/logo.png" alt="logo" />
+            <Image width={50} height={50} className="w-10 h-10 mr-3" src="/logo/logo.png" alt="logo" />
             LightHosting
           </a>
           <div className="w-full backdrop-blur-lg bg-white/10 rounded-2xl shadow-2xl md:mt-0 sm:max-w-md xl:p-0 border border-white/20">

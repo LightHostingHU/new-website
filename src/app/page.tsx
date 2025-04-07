@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import Link from "next/link";
+import Image from "next/image";
 
 const announcements = [
   {
@@ -50,7 +51,7 @@ export default function Home() {
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [serviceNumber, setServiceNumber] = useState(0);
-  const [userStats, setUserStats] = useState<{ total: number; change: number }[]>([]);
+  const [userStats, setUserStats] = useState<{ count: number; growth: number, date: string }[]>([]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -106,7 +107,6 @@ export default function Home() {
             setUserStats(data.data);
           }
 
-          console.log(data)
           setIsLoading(false);
         } catch (error) {
           setIsLoading(false);
@@ -144,15 +144,6 @@ export default function Home() {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6 bg-slate-900  text-foreground min-h-screen">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">VPS Hosting Dashboard</h1>
-            <Link href="/rendeles">
-          <Button>
-              Új szolgáltatás rendelés
-          </Button>
-             </Link>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -218,9 +209,11 @@ export default function Home() {
                 >
                   <div className="flex gap-6 items-start rounded-xl p-6 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/20 hover:border-blue-500/30">
                     <div className="relative shrink-0">
-                      <img
+                      <Image
                         src={announcement.author.avatar || "/placeholder.svg"}
                         alt={announcement.author.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-full object-cover border-3 border-slate-700 transition-all duration-300 group-hover:border-blue-500"
                       />
                       <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-slate-800 animate-pulse" />

@@ -112,8 +112,12 @@ export function Services() {
         switch (status) {
             case "active":
                 return "Aktív"
-            case "inactive":
-                return "Inaktív"
+            case "restarting":
+                return "újraindítás alatt"
+            case "offline":
+                return "Offline"
+            case "starting":
+                return "Indítás alatt"
             default:
                 return status
         }
@@ -135,8 +139,8 @@ export function Services() {
     return (
         <div
             className={`min-h-screen transition-colors duration-300 ${theme === "dark"
-                    ? "bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900"
-                    : "bg-gradient-to-b from-blue-50 via-white to-blue-50"
+                ? "bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900"
+                : "bg-gradient-to-b from-blue-50 via-white to-blue-50"
                 }`}
         >
             <div className="container mx-auto py-16 px-4 sm:px-6">
@@ -205,8 +209,16 @@ export function Services() {
                                                     </CardTitle>
                                                     <Badge
                                                         variant={getStatusVariant(service.status) as any}
-                                                        className={`${service.status === "active" ? "animate-pulse bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-500/30" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
-                                                    >
+                                                        className={`${service.status === "active"
+                                                                ? "animate-pulse bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-500/30"
+                                                                : service.status === "restarting"
+                                                                    ? "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/30"
+                                                                    : service.status === "offline"
+                                                                        ? "bg-red-500/20 text-red-700 dark:text-red-400 hover:bg-red-500/30"
+                                                                        : service.status === "starting"
+                                                                            ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-500/30"
+                                                                            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                                                            }`}                                                    >
                                                         {getStatusText(service.status)}
                                                     </Badge>
                                                 </div>
@@ -225,9 +237,9 @@ export function Services() {
                                                         </div>
                                                         <span className="text-gray-700 dark:text-gray-200">
                                                             {service.type === "vps" ? (
-                                                            `CPU: ${serviceInfo ? serviceInfo["cpu"] : "N/A"} mag`
+                                                                `CPU: ${serviceInfo ? serviceInfo["cpu"] : "N/A"} mag`
                                                             ) : (
-                                                            `CPU: ${serviceInfo ? serviceInfo["cpu"] : "N/A"}%`
+                                                                `CPU: ${serviceInfo ? serviceInfo["cpu"] : "N/A"}%`
                                                             )}
                                                         </span>
                                                     </motion.div>
@@ -250,7 +262,7 @@ export function Services() {
                                                     >
                                                         <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/30 transition-colors mr-3">
                                                             <HardDrive className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-                                                        </div> 
+                                                        </div>
                                                         <span className="text-gray-700 dark:text-gray-200">
                                                             Tárhely: {serviceInfo ? (getServiceName(service.service_id).includes('Discord') ? serviceInfo["disk"] : serviceInfo["disk"] / 1024) : "N/A"} {getServiceName(service.service_id).includes('Discord') ? 'MB' : 'GB'}
                                                         </span>

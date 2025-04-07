@@ -38,7 +38,6 @@ export async function GET() {
             growth: stat.growth,
         }));
 
-        console.log(formattedGrowth);
         return NextResponse.json({
             status: 'success',
             data: formattedGrowth

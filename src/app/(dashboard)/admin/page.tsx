@@ -12,7 +12,7 @@ const AdminPage = async () => {
     return new NextResponse("Unauthorized", { status: 401 });
   }
   
-  const userId = session.user.userid as string;
+  const userId = session.user.id as string;
   async function createNews(formData: FormData) {
     'use server'
     
@@ -44,7 +44,7 @@ const AdminPage = async () => {
               id="title"
               name="title"
               required
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded "
             />
           </div>
           <div>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import Image from 'next/image'
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('')
@@ -37,7 +38,7 @@ export default function ForgotPasswordPage() {
     return (
         <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-gradient-to-br from-indigo-100 to-blue-50 dark:from-gray-900 dark:to-gray-800">
             <a href="#" className="flex flex-row items-center justify-center text-center mb-8 text-3xl font-bold text-gray-800 dark:text-white transition-colors duration-300">
-                <img className="w-12 h-12 mr-3 transform hover:scale-110 transition-transform duration-300" src="/logo/logo.png" alt="logó" />
+                <Image className="w-12 h-12 mr-3 transform hover:scale-110 transition-transform duration-300" src="/logo/logo.png" alt="logó" />
                 LightHosting
             </a>
             <div className="sm:mx-auto sm:w-full sm:max-w-sm border border-white/10 shadow-xl backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-2xl">

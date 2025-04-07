@@ -12,6 +12,11 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 
+import { signOut } from "next-auth/react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+
 const menuItems = [
     { icon: Home, label: "Áttekintés", href: "/" },
     { icon: Server, label: "Szolgáltatások", href: "/szolgaltatasok" },
@@ -28,6 +33,23 @@ export function Sidebar() {
     const [permissions, SetPermissions] = useState(null)
     const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false)
     const { theme, setTheme } = useTheme()
+    const [avatar, setAvatar] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchAvatar = async () => {
+            try {
+                const response = await fetch("/api/user/profile-picture");
+                const data = await response.json();
+                if (data.avatar) {
+                    setAvatar(data.avatar);
+                }
+            } catch (error) {
+                console.error("Error fetching avatar:", error);
+            }
+        };
+
+        fetchAvatar();
+    }, [])
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -45,12 +67,12 @@ export function Sidebar() {
                 console.error("Permissions fetch error:", error);
             }
         }
-        
+
         if (status === 'authenticated') {
             fetchPermissions();
-            
+
             const interval = setInterval(fetchPermissions, 10000);
-            
+
             return () => clearInterval(interval);
         }
     }, [status]);
@@ -115,19 +137,47 @@ export function Sidebar() {
                     )}
                 </nav>
             </div>
-            <div className="mt-auto p-6 space-y-2 border-t border-zinc-700">
-                <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => window.open("https://discord.gg/yourserver", "_blank")}
-                >
-                    <MessageSquare className="h-5 w-5 mr-3" />
-                    Discord
-                </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => window.open("/vm-panel", "_blank")}>
-                    <Monitor className="h-5 w-5 mr-3" />
-                    VM Panel
-                </Button>
+            <div className="mt-auto p-6 border-t border-zinc-700">
+                <section className="space-y-2 ">
+                    <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => window.open("https://discord.gg/yourserver", "_blank")}
+                    >
+                        <MessageSquare className="h-5 w-5 mr-3" />
+                        Discord
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => window.open("/vm-panel", "_blank")}>
+                        <Monitor className="h-5 w-5 mr-3" />
+                        VM Panel
+                    </Button>
+                </section>
+            </div>
+            <div className="border-t border-zinc-700 p-2">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="w-full mt-2">
+                            <div className="flex gap-2">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={avatar ?? undefined} alt="Avatar" />
+                                    <AvatarFallback>U</AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-sm font-medium leading-none">{session?.user?.name}</span>
+                                    <span className="text-xs text-muted-foreground">{session?.user?.email}</span>
+                                </div>
+                            </div>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="w-48">
+                        <DropdownMenuLabel>Fiókom</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Profil</DropdownMenuItem>
+                        <DropdownMenuItem>Beállítások</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => signOut({ redirect: true, callbackUrl: "/sign-in" })}>Kijelentkezés</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
     )

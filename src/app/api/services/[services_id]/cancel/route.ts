@@ -1,12 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/db";
+import { parse } from "path";
 
+type  RouteContext = {
+  params: Promise<{
+    services_id: string;
+  }>;
+};
 export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
+  const serviceId = parseInt((await context.params).services_id);
+
   await db.service.update({
-    where: { id: parseInt(params.id) },
+    where: { id: serviceId },
     data: { status: "canceled" },
   });
 
