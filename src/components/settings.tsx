@@ -3,14 +3,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { toast } from "sonner"
 import { signIn, useSession } from "next-auth/react"
-import { error } from "console"
-import Image from "next/image"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 
 export function Settings() {
     const session = useSession()
@@ -40,25 +38,29 @@ export function Settings() {
 
     useEffect(() => {
         fetchUserData()
+        fetchProfilePicture()   
     }, [])
 
     const fetchUserData = async () => {
         try {
-            const [profileResponse, pictureResponse] = await Promise.all([
-                axios.get<{ firstname: string; lastname: string; email: string; phone: string; discordConnected: boolean }>('/api/user/profile'),
-                axios.get<{ avatar: string }>('/api/user/profile-picture')
-            ])
-
-            setUserData({
-                ...profileResponse.data,
-                profilePicture: pictureResponse.data.avatar
-            })
-
+            const profileResponse = await axios.get<{ firstname: string; lastname: string; email: string; phone: string; discordConnected: boolean }>('/api/user/profile')
+            setUserData(profileResponse.data)
         } catch (error) {
-            toast.error('Hiba a felhasználó adatainak betöltése során!')
+            toast.error('Hiba a profil adatok lekérése során!')
         }
     }
 
+    const fetchProfilePicture = async () => {
+        try {
+            const pictureResponse = await axios.get<{ avatar: string }>('/api/user/profile-picture')
+            setUserData(prev => ({
+                ...prev,
+                profilePicture: pictureResponse.data.avatar
+            }))
+        } catch (error) {
+            toast.error('Hiba a profilkép lekérése során!')
+        }
+    }
     const handleProfileUpdate = async () => {
         try {
             await axios.put('/api/user/profile', userData)
@@ -175,19 +177,15 @@ export function Settings() {
                                     <Label htmlFor="profilePicture" className="text-sm font-medium">Profilkép</Label>
                                     <div className="flex items-center gap-4">
                                         {userData.profilePicture ? (
-                                            <div className="flex items-center gap-4">
-                                                <Image
-                                                    width={80}
-                                                    height={80}
-                                                    src={userData.profilePicture}
-                                                    alt="Profile"
-                                                    className="w-20 h-20 rounded-full object-cover"
-                                                />
+                                            <div className="flex items-center gap-4 rounded-full">
+                                                <Avatar className="h-20 w-20 rounded-full object-cover">
+                                                    <AvatarImage className="rounded-full" src={userData.profilePicture ?? undefined} alt={userData.profilePicture} />
+                                                </Avatar>
                                             </div>
                                         ) : (
-                                            <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center">
-                                                <span className="text-slate-500">Nincs kép</span>
-                                            </div>
+                                                <Avatar className="h-20 w-20 rounded-full object-cover">
+                                                    <AvatarImage className="rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt={userData.profilePicture} />
+                                                </Avatar>
                                         )}
                                         <Input
                                             id="profilePicture"

@@ -45,6 +45,20 @@ export async function GET(req: NextRequest): Promise<Response> {
                     },
                 },
             });
+            
+            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/billingo/receipt`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amount: session.metadata && session.metadata.amount ? Number(session.metadata.amount) : 0,
+                    email: sessionLogin.user.email,
+                    partnerName: `${sessionLogin.user.name}`,
+                }),
+            });
+
+            
             return Response.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/szamlazas/success`);
         }
 

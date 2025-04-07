@@ -47,9 +47,10 @@ export async function GET(request: Request) {
       select: { url: true },
     });
 
+
     if (!cdn) {
       return NextResponse.json(
-        { message: "Profilkép nem található." },
+        { message: "CDN adat nem található." },
         { status: 404 }
       );
     }

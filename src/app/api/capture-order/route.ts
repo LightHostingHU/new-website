@@ -95,6 +95,19 @@ export async function POST(req: Request) {
       }
     })
 
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/billingo/receipt`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount,
+        email: sessionLogin.user.email
+      }),
+    });
+
+
+
     return NextResponse.json({ success: true, amount, currency }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

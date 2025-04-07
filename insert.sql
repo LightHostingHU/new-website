@@ -1,0 +1,268 @@
+
+INSERT IGNORE INTO `cdn` (
+        `id`,
+        `user_id`,
+        `url`,
+        `type`,
+        `filename`,
+        `deletion_date`,
+        `delete_hash`,
+        `expire`
+    )
+VALUES (
+        1,
+        4,
+        'https://i.imgur.com/isFDtBg.png',
+        'avatar',
+        'eed3dd9eaa0b10bbd0e54c83.png',
+        '2025-04-02 16:49:50',
+        'bDXJUMA7aMqDSl4',
+        '2025-05-02 16:49:50'
+    ),
+    (
+        2,
+        6,
+        'https://i.imgur.com/Tca99bR.png',
+        'avatar',
+        'f660dc0590c49e7f43343907.png',
+        '2025-04-02 17:56:37',
+        'lr3PtQNcwsb6Ab1',
+        '2025-05-02 17:56:37'
+    );
+
+-- Tábla adatainak mentése lighthosting.servicelist: ~15 rows (hozzávetőleg)
+INSERT IGNORE INTO `servicelist` (
+        `id`,
+        `name`,
+        `image`,
+        `options`,
+        `type`,
+        `offer`,
+        `other`,
+        `gradientColors`,
+        `description`,
+        `features`
+    )
+VALUES (
+        1,
+        'Minecraft szerver',
+        'minecraft.png',
+        '[\n    {\n        "label": "Szerver ram",\n        "placeholder": "Válassz egy opciót.",\n        "price": 633,\n        "min": 1024,\n        "max": 18432,\n        "step": 1024,\n        "default": 1024,\n        "suffix": "GB"\n    },\n    {\n        "label": "Szerver tárhely",\n        "placeholder": "Válassz egy opciót.",\n        "price": 35,\n        "min": 1024,\n        "max": 60416,\n        "step": 1024,\n        "default": 1024,\n        "suffix": "GB"\n    },\n    {\n        "label": "CPU használat",\n        "placeholder": "Válassz egy opciót.",\n        "price": 115,\n        "min": 100,\n        "max": 400,\n        "step": 100,\n        "default": 100,\n        "suffix": "%"\n    },\n    {\n        "label": "Szerver verzió",\n        "placeholder": "Válassz egy verizó számot.",\n        "price": 0,\n        "options": [\n            "1.21.1",\n            "1.21",\n            "1.20.2",\n            "1.20.1",\n            "1.20",\n            "1.19.4",\n            "1.19.3",\n            "1.19.2",\n            "1.19.1",\n            "1.19",\n            "1.18.2",\n            "1.18.1",\n            "1.18",\n            "1.17.1",\n            "1.17",\n            "1.16.5",\n            "1.16.4",\n            "1.16.3",\n            "1.16.2",\n            "1.16.1",\n            "1.16",\n            "1.15.2",\n            "1.15.1",\n            "1.15",\n            "1.14.4",\n            "1.14.3",\n            "1.14.2",\n            "1.14.1",\n            "1.14",\n            "1.13.2",\n            "1.13.1",\n            "1.13",\n            "1.12.2",\n            "1.12.1",\n            "1.12",\n            "1.11.2",\n            "1.11.1",\n            "1.11",\n            "1.10.2",\n            "1.10.1",\n            "1.10",\n            "1.9.4",\n            "1.9.3",\n            "1.9.2",\n            "1.9.1",\n            "1.9",\n            "1.8.9",\n            "1.8.8",\n            "1.8.7",\n            "1.8.6",\n            "1.8.5",\n            "1.8.4",\n            "1.8.3",\n            "1.8.2",\n            "1.8.1",\n            "1.8"\n        ]\n    }\n]\n',
+        'game',
+        NULL,
+        '{\n    "eggId": 4,\n    "nodeId": 1,\n    "nestId": 1,\n    "variables": {\n        "MINECRAFT_VERSION": "{{option3}}",\n        "BUILD_NUMBER": "latest",\n        "SERVER_JARFILE": "server.jar"\n    }\n}',
+        'from-red-400 to-yellow-500',
+        'Indítsa el saját Minecraft világát!',
+        '["Dedikált erőforrások", "DDoS védelem", "Napi mentések", "24/7 támogatás", "Egyedi domain név"]'
+    ),
+    (
+        2,
+        'Ryzen 9 7900x VPS',
+        'amd-ryzen.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "price": 645,\r\n        "min": 1024,\r\n        "max": 32768,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "price": 40,\r\n        "min": 1024,\r\n        "max": 512000,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU mag",\r\n        "price": 120,\r\n        "min": 1,\r\n        "max": 6,\r\n        "step": 1,\r\n        "default": 1,\r\n        "suffix": "db"\r\n    },\r\n    {\r\n        "label": "Operációs rendszer",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 0,\r\n        "options": [\r\n            "AlmaLinux 8.9 (x86_64)",\r\n            "AlmaLinux 9.4 (x86_64)",\r\n            "CentOS 7.9 (x86_64)",\r\n            "CentOS 8.9 (x86_64)",\r\n            "Debian 10 (x86_64)",\r\n            "Debian 11 (x86_64)",\r\n            "Debian 12 (x86_64)",\r\n            "Ubuntu 20.04 (x86_64)",\r\n            "Ubuntu 22.04 (x86_64)",\r\n            "Ubuntu 24.04 (x86_64)",\r\n            "Windows 2022 (SCSI VirtIO)"\r\n        ]\r\n    }\r\n]\r\n',
+        'vps',
+        NULL,
+        '{\r\n    "server_id": 0,\r\n    "storage_id": 2,\r\n    "storage_uuid": "yKGbmqmt2F9gB3f5"\r\n}',
+        'from-blue-600 to-indigo-800',
+        'Építsen és fedezzen fel a barátaival!',
+        '["Automatikus mentések",\n            "Mod támogatás",\n            "Egyedi világ generátor",\n            "24/7 üzemidő",\n            "Könnyű kezelőfelület"]'
+    ),
+    (
+        3,
+        'Terraria',
+        'terraria.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 31,\r\n    "nodeId": 1,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "TERRARIA_VERSION": "latest",\r\n        "WORLD_NAME": "world",\r\n        "MAX_PLAYERS": 8,\r\n        "WORLD_SIZE": 1,\r\n        "WORLD_DIFFICULTY": 3,\r\n        "SERVER_MOTD": "www.lighthosting.hu",\r\n        "NPCSTREAM": 0\r\n    }\r\n}',
+        'from-blue-600 to-indigo-600',
+        'Realisztikus autós élmény többjátékos módban',
+        '[\n            "Nagy teljesítményű CPU",\n            "Széles sávszélesség",\n            "Egyedi pályák támogatása",\n            "Automatikus frissítések",\n            "Játékos statisztikák"\n        ]'
+    ),
+    (
+        7,
+        'BeamNG Drive',
+        'beamng.jpg',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "BeamNG Szerver Token",\r\n        "placeholder": "Add meg a BeamNG szerver tokenedet.",\r\n        "price": 0\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 30,\r\n    "nodeId": 1,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "NAME": "BeamMP Server",\r\n        "DESCRIPTION": "www.lighthosting.hu",\r\n        "VERSION": "latest",\r\n        "AUTHKEY": "{{option3}}",\r\n        "MAX_PLAYER": 8\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        13,
+        'Escape From Tarkov',
+        'eft.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 32,\r\n    "nodeId": 1,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "SPT_VERSION": "40b999d04c68f1f52ab152d163c086a1c50f489b",\r\n        "SIT_VERSION": "latest",\r\n        "SIT_PACKAGE": "stayintarkov/SIT.Aki-Server-Mod",\r\n        "SIT_NAME": "SITCoop.zip"\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        16,
+        'Factorio',
+        'factorio.jpg',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 33,\r\n    "nodeId": 1,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "SPT_VERSION": "40b999d04c68f1f52ab152d163c086a1c50f489b",\r\n        "FACTORIO_VERSION": "latest",\r\n        "MAX_SLOTS": 20,\r\n        "SERVER_NAME": "Factorio Server",\r\n        "SERVER_DESC": "www.lighthosting.hu",\r\n        "SERVER_USERNAME": "unnamed",\r\n        "SAVE_INTERVAL": 10,\r\n        "SAVE_SLOTS": 5,\r\n        "AFK_KICK": 0,\r\n        "SAVE_NAME": "gamesave",\r\n        "SERVER_TOKEN": "undefined"\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        20,
+        'Multi Theft Auto',
+        'mta.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 22,\r\n    "nodeId": 1,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "SERVER_WEBPORT": 22005\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        21,
+        'Counter-Strike: Global Offensive',
+        'csgo.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "Steam fiók token",\r\n        "placeholder": "Add meg a steam fiók tokenedet.",\r\n        "price": 0\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\n    "eggId": 7,\n    "nodeId": 8,\n    "nestId": 2,\n    "variables": {\n        "SRCDS_MAP": 22005,\n        "SRCDS_APPID": 740,\n        "STEAM_ACC": "{{option3}}"\n    }\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        23,
+        'ALT:V',
+        'altv.jpg',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 20,\r\n    "nodeId": 8,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "LD_LIBRARY_PATH": ".",\r\n        "BUILD": "release",\r\n        "PASSWORD": "ChangeMe",\r\n        "SERVER_DESC": "www.lighthosting.hu"\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        24,
+        'Rust',
+        'rust.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "Szerver Slot",\r\n        "placeholder": "Válassz egy slot számot.",\r\n        "price": 0,\r\n        "options": [\r\n            "5",\r\n            "10",\r\n            "15",\r\n            "20",\r\n            "25",\r\n            "30",\r\n            "35",\r\n            "40",\r\n            "45",\r\n            "50",\r\n            "55",\r\n            "60",\r\n            "65",\r\n            "70"\r\n        ]\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 14,\r\n    "nodeId": 1,\r\n    "nestId": 4,\r\n    "variables": {\r\n        "HOSTNAME": "Rust Server Powered By lighthosting",\r\n        "FRAMEWORK": "vanilla",\r\n        "LEVEL": "Procedural Map",\r\n        "DESCRIPTION": "www.lighthosting.hu",\r\n        "SERVER_URL": "https://ugyfelkapu.lighthosting.hu/",\r\n        "WORLD_SIZE": "2000",\r\n        "MAX_PLAYERS": "{{option3}}",\r\n        "QUERY_PORT": "27017",\r\n        "RCON_PORT": "28016",\r\n        "RCON_PASS": "defaultpass",\r\n        "SAVEINTERVAL": "60",\r\n        "APP_PORT": "28082"\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        25,
+        'Counter-Strike 2',
+        'cs2.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "Steam fiók token",\r\n        "placeholder": "Add meg a steam fiók tokenedet.",\r\n        "price": 0\r\n    },\r\n    {\r\n        "label": "Szerver Slot",\r\n        "placeholder": "Válassz egy slot számot.",\r\n        "price": 0,\r\n        "options": [\r\n            "70",\r\n            "65",\r\n            "60",\r\n            "55",\r\n            "50",\r\n            "45",\r\n            "40",\r\n            "35",\r\n            "30",\r\n            "25",\r\n            "20",\r\n            "15",\r\n            "10",\r\n            "5"\r\n        ]\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 26,\r\n    "nodeId": 8,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "SRCDS_MAP": "de_dust2",\r\n        "SRCDS_APPID": 730,\r\n        "SRCDS_MAXPLAYERS": "{{option4}}",\r\n        "SRCDS_STOP_UPDATE": 0,\r\n        "SRCDS_VALIDATE": 0,\r\n        "STEAM_ACC": "{{option3}}",\r\n        "GAME_TYPE": 0,\r\n        "GAME_MODE": 0,\r\n        "CLEANUP_ENABLED": 1,\r\n        "CSS_AUTOUPDATE": 0,\r\n        "METAMOD_AUTOUPDATE": 0,\r\n        "ENABLE_FILTER": 0,\r\n        "FILTER_PREVIEW_MODE": 0\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        26,
+        '7 Days To Die',
+        '7days.jpg',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "Steam fiók token",\r\n        "placeholder": "Add meg a steam fiók tokenedet.",\r\n        "price": 0\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 19,\r\n    "nodeId": 8,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "MAX_PLAYERS": 8,\r\n        "GAME_DIFFICULTY": 3,\r\n        "SRCDS_APPID": 294420,\r\n        "AUTO_UPDATE": 1\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        28,
+        'Teamspeak3 Server',
+        'ts3.jpg',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\n    "eggId": 13,\n    "nodeId": 1,\n    "nestId": 3,\n    "variables": {\n        "TS_VERSION": "latest",\n        "FILE_TRANSFER": 30033,\n        "QUERY_PORT": 10011,\n        "QUERY_PROTOCOLS_VAR": "http",\n        "QUERY_SSH": 10022,\n        "QUERY_HTTP": 10080\n    }\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        29,
+        'Euro Truck Simulator Dedikált szerver',
+        'ets2.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 633,\r\n        "min": 1024,\r\n        "max": 18432,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 35,\r\n        "min": 1024,\r\n        "max": 60416,\r\n        "step": 1024,\r\n        "default": 1024,\r\n        "suffix": "GB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 115,\r\n        "min": 100,\r\n        "max": 400,\r\n        "step": 100,\r\n        "default": 100,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "Steam fiók token",\r\n        "placeholder": "Add meg a steam fiók tokenedet.",\r\n        "price": 0\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\r\n    "eggId": 29,\r\n    "nodeId": 8,\r\n    "nestId": 2,\r\n    "variables": {\r\n        "AUTO_UPDATE": 1,\r\n        "SRCDS_APPID": 1948160,\r\n        "LOBBY_NAME": "Euro Truck Simulator 2 szerver",\r\n        "STEAM_TOKEN": "{{option3}}"\r\n    }\r\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    ),
+    (
+        30,
+        'Discord Szolgáltatás',
+        'discord.png',
+        '[\r\n    {\r\n        "label": "Szerver ram",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 47,\r\n        "min": 64,\r\n        "max": 1024,\r\n        "step": 64,\r\n        "default": 64,\r\n        "suffix": "MB"\r\n    },\r\n    {\r\n        "label": "Szerver tárhely",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 10,\r\n        "min": 128,\r\n        "max": 3584,\r\n        "step": 128,\r\n        "default": 128,\r\n        "suffix": "MB"\r\n    },\r\n    {\r\n        "label": "CPU használat",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 40,\r\n        "min": 50,\r\n        "max": 200,\r\n        "step": 50,\r\n        "default": 50,\r\n        "suffix": "%"\r\n    },\r\n    {\r\n        "label": "Verzió",\r\n        "placeholder": "Válassz egy opciót.",\r\n        "price": 0,\r\n        "options": [\r\n            "NodeJs",\r\n            "Python"\r\n        ]\r\n    }\r\n]\r\n',
+        'game',
+        NULL,
+        '{\n    "nodeId": 8,\n    "nestId": 5,\n    "nodejs": 17,\n    "python": 16,\n    "nodejs_variables": {\n        "USER_UPLOAD": 0,\n        "AUTO_UPDATE": 0,\n        "JS_FILE": "index.js"\n    },\n    "python_variables": {\n        "USER_UPLOAD": 0,\n        "AUTO_UPDATE": 0,\n        "PY_FILE": "app.py",\n        "REQUIREMENTS_FILE": "requirements.txt"\n    }\n}',
+        'from-red-400 to-yellow-500',
+        NULL,
+        NULL
+    );
+
+INSERT IGNORE INTO `user` (
+        `id`,
+        `email`,
+        `username`,
+        `firstname`,
+        `lastname`,
+        `password`,
+        `createdAt`,
+        `updatedAt`,
+        `avatar`,
+        `discord`,
+        `money`,
+        `role`,
+        `name`,
+        `verified`,
+        `emailVerified`,
+        `image`,
+        `resetToken`,
+        `resetTokenExpires`,
+        `discordData`
+    )
+VALUES (
+        6,
+        'illes.akos@illesinnovate.hu',
+        'illesa',
+        'Ákos',
+        'Illés',
+        '$2b$12$A/bD8jTh8n7u3kWBtTMuxeYCJrbCfyv0cquTfeMaPataK9f9UGIQa',
+        '2025-04-02 16:57:58.880',
+        '2025-04-02 17:56:37.752',
+        'f660dc0590c49e7f43343907.png',
+        '',
+        0,
+        'admin',
+        NULL,
+        0,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
