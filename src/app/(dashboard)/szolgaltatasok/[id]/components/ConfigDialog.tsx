@@ -28,7 +28,7 @@ export default function ConfigDialog({ service, isOpen, onOpenChange, onSuccess 
         isUpdating,
         handleConfigChange,
         updateServiceConfiguration
-    } = useConfigOptions(service, () => {
+    } = useConfigOptions({ ...service, service_name: service.type }, () => {
         onOpenChange(false);
         if (onSuccess) onSuccess();
     });

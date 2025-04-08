@@ -13,11 +13,14 @@ import showToast from "../Toast"
 import { useSession } from "next-auth/react"
 import { useTheme } from "next-themes"
 
-const invoices = [
-    { id: 1, date: "2023-06-01", amount: 15000, status: "Fizetve" },
-    { id: 2, date: "2023-07-01", amount: 18000, status: "Folyamatban" },
-    { id: 3, date: "2023-08-01", amount: 18000, status: "Függőben" },
-]
+interface Transaction {
+    id: number;
+    amount: number;
+    status: string;
+    createdAt: string;
+    paymentMethod: string;
+    billingoId: string;
+}
 
 const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 if (!stripeKey) {
@@ -34,28 +37,40 @@ export function Szamlazas() {
     const [amount, setAmount] = useState("")
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState<{ type?: "success" | "danger" | "warning"; text: string } | null>(null);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/sign-in");
         }
         if (status === "authenticated") {
-            const fetchBalance = async () => {
+            const fetchData = async () => {
                 try {
                     setIsLoading(true);
-                    const response = await fetch("/api/balance", {
+
+                    // Balance fetch
+                    const balanceResponse = await fetch("/api/balance", {
                         method: "GET",
                     });
-                    const data = await response.json();
-                    setBalance(data.balance);
+                    const balanceData = await balanceResponse.json();
+                    setBalance(balanceData.balance);
+
+                    const transactionsResponse = await fetch("/api/transactions", {
+                        method: "GET",
+                    });
+                    const transactionsData = await transactionsResponse.json();
+                    setTransactions(transactionsData);
+                    console.log(transactionsData)
+
                     setIsLoading(false);
                 } catch (error) {
-                    setIsLoading(true);
+                    console.error("Error fetching data:", error);
+                    setIsLoading(false);
                 }
             };
-            fetchBalance();
+            fetchData();
         }
-    }, [status, balance]);
+    }, [status, router]);
 
     const handleDialogOpen = () => {
         if (Number(amount) < 175) {
@@ -92,7 +107,6 @@ export function Szamlazas() {
                 await stripe.redirectToCheckout({
                     sessionId: session.id,
                 });
-
             }
         } catch (error) {
             console.error('Error:', error)
@@ -124,12 +138,41 @@ export function Szamlazas() {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     };
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('hu-HU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    };
+
+    const handleDownload = async (invoiceId: string) => {
+        try {
+            const response = await fetch(`/api/billingo/${invoiceId}/download`);
+            if (!response.ok) throw new Error("Hiba a letöltésnél");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `szamla-${invoiceId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error("Hiba:", err);
+        }
+    };
+
+
     if (isLoading) {
         return <div className="p-6 space-y-6 bg-slate-100 darK:bg-slate-900 text-foreground min-h-screen flex items-center justify-center">
             <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
         </div>
     }
-    
+
     return (
         <div className={`${theme === 'dark' ? 'bg-gradient-to-b from-slate-900 to-slate-800' : 'bg-gradient-to-b from-gray-100 to-white'} min-h-screen`}>
             <div className="container mx-auto py-10 px-4">
@@ -212,35 +255,51 @@ export function Szamlazas() {
                                 <div className="text-slate-600 dark:text-slate-400 text-sm">Teljes összeg</div>
                             </div>
                         </CardContent>
-                    </Card>                </div>
+                    </Card>
+                </div>
 
-                <h2 className="text-3xl font-bold mt-12 mb-6 text-slate-900 dark:text-primary">Számlák</h2>
+                <h2 className="text-3xl font-bold mt-12 mb-6 text-slate-900 dark:text-primary">Tranzakciók</h2>
                 <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
                     <CardHeader>
-                        <CardTitle className="text-2xl text-slate-900 dark:text-primary">Számlák története</CardTitle>
+                        <CardTitle className="text-2xl text-slate-900 dark:text-primary">Tranzakciós történet</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {invoices.map((invoice) => (
-                                <div key={invoice.id} className="flex items-center justify-between p-5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <div className="flex items-center space-x-4">
-                                        <Calendar className="h-6 w-6 text-slate-900 dark:text-primary" />
-                                        <div>
-                                            <p className="font-medium text-lg text-slate-900 dark:text-slate-200">{invoice.date}</p>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400">Számla #{invoice.id}</p>
+                            {transactions.length > 0 ? (
+                                transactions.map((transaction) => (
+                                    <div key={transaction.id} className="flex items-center justify-between p-5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                        <div className="flex items-center space-x-4">
+                                            <Calendar className="h-6 w-6 text-slate-900 dark:text-primary" />
+                                            <div>
+                                                <p className="font-medium text-lg text-slate-900 dark:text-slate-200">{formatDate(transaction.createdAt)}</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">{transaction.paymentMethod}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-6">
+                                            <div className="text-right">
+                                                <p className="font-medium text-lg text-slate-900 dark:text-primary">{formatNumber(transaction.amount)} Ft</p>
+                                                <Badge
+                                                    variant={
+                                                        transaction.status === "paid" ? "default" :
+                                                            transaction.status === "Folyamatban" ? "secondary" :
+                                                                "destructive"
+                                                    }
+                                                    className="mt-1 uppercase"
+                                                >
+                                                    {transaction.status === "paid" ? "Kifizetve" : transaction.status}
+                                                </Badge>
+                                            </div>
+                                            <Button variant="ghost" size="icon" className="hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                <Download onClick={() => handleDownload(transaction.billingoId)} className="h-5 w-5" />
+                                            </Button>
                                         </div>
                                     </div>
-                                    <div className="flex items-center space-x-6">
-                                        <div className="text-right">
-                                            <p className="font-medium text-lg text-slate-900 dark:text-primary">{formatNumber(invoice.amount)} Ft</p>
-                                            <Badge variant={invoice.status === "Fizetve" ? "default" : "secondary"} className="mt-1">{invoice.status}</Badge>
-                                        </div>
-                                        <Button variant="ghost" size="icon" className="hover:bg-slate-100 dark:hover:bg-slate-700">
-                                            <Download className="h-5 w-5" />
-                                        </Button>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-8">
+                                    <p className="text-slate-500 dark:text-slate-400">Nincsenek tranzakciók</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </CardContent>
                 </Card>

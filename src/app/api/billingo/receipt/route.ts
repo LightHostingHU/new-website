@@ -1,9 +1,7 @@
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
+export async function POST(req: NextRequest): Promise<Response> {
     const body = await req.json();
 
     const billingoApiKey = process.env.BILLINGO_API_KEY;
@@ -33,7 +31,6 @@ export async function POST(req: NextRequest) {
             emails: [body.email],
             name: body.partnerName,
         };
-        console.log("Nyugta data:", nyugtaData);
 
         const createResponse = await fetch('https://api.billingo.hu/v3/documents/receipt', {
             method: 'POST',
@@ -45,8 +42,32 @@ export async function POST(req: NextRequest) {
         });
 
         const data = await createResponse.json()
+        const user = await db.user.findUnique({
+            where: {
+                email: body.email
+            }
+        });
+        const existingTransaction = await db.transactions.findFirst({
+            where: {
+                billingoId: data.id,
+                userEmail: body.email,
+            }
+        });
 
-        console.log(data)
+        if (!existingTransaction) {
+            await db.transactions.create({
+                data: {
+                    amount: body.amount ? Number(body.amount) : 0,
+                    userId: user?.id ?? 0,
+                    userEmail: body.email,
+                    partnerName: body.partnerName,
+                    invoiceDate: new Date(),
+                    billingoId: data.id ?? "",
+                    invoiceNumber: data.invoice_number ?? "",
+                    status: data.payment_status ?? "",
+                },
+            });
+        }
 
         if (!createResponse.ok) {
             return NextResponse.json({ error: data }, { status: createResponse.status });
@@ -54,6 +75,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json(data);
     } catch (error) {
+        console.error('Error:', error);
         return NextResponse.json({ error: 'Unexpected error', details: error }, { status: 500 });
     }
 }

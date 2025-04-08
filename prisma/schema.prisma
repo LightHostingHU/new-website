@@ -172,3 +172,17 @@ model News {
   admin_id    Int      @db.Int
   createdAt   DateTime @default(now())
 }
+
+model Transactions {
+  id        Int      @id @default(autoincrement())
+  userId   Int      @db.Int
+  userEmail String   @db.VarChar(255)
+  partnerName String   @db.VarChar(255)
+  amount    Int
+  billingoId Int  @db.Int
+  invoiceNumber String   @db.VarChar(255) @unique
+  invoiceDate DateTime @db.DateTime
+  status    String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

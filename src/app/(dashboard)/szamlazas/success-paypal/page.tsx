@@ -26,7 +26,6 @@ const SuccessPage = () => {
                 const data = await response.json();
                 
             } catch (error) {
-                console.error("PayPal Capture Error:", error);
                 setError("Payment verification failed.");
             }
         };
