@@ -141,12 +141,12 @@ export function Sidebar() {
                     <Button
                         variant="outline"
                         className="w-full justify-start"
-                        onClick={() => window.open("https://discord.gg/yourserver", "_blank")}
+                        onClick={() => window.open("https://dc.lighthosting.hu/", "_blank")}
                     >
                         <MessageSquare className="h-5 w-5 mr-3" />
                         Discord
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => window.open("/vm-panel", "_blank")}>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => window.open("https://vm.lighthosting.hu:4083", "_blank")}>
                         <Monitor className="h-5 w-5 mr-3" />
                         VM Panel
                     </Button>
