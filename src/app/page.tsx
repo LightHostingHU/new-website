@@ -1,71 +1,48 @@
 "use client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Users, Server, PiggyBank, Newspaper, Clock } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users, Server, PiggyBank, Newspaper, Clock } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react"
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import Image from "next/image";
+import axios from "axios";
 
-const announcements = [
-  {
-    id: 1,
-    title: "Tisztelt Ügyfeleink",
-    timestamp: "Közzétéve múlt csütörtökön 19:13-kor",
-    content:
-      "Az ügyfél-szolgáltatói kapcsolat számunkra fontos, emiatt szükségesnek érezzük ezen bejegyzés publikálását! A jelenlegi ügyfélkapunk fejlesztése LEÁLL, ezen ügyfélkapu fejlesztője kilépett csapatunkból.",
-    author: {
-      name: "Kovács János",
-      avatar: "/logo/logo.png?height=40&width=40",
-    },
-  },
-  {
-    id: 2,
-    title: "Rendszerkarbantartás",
-    timestamp: "Közzétéve múlt pénteken 15:30-kor",
-    content:
-      "A kód használhatatlansága miatt NEM fejlesszük tovább, a használhatatlanság alatt sajnos több tényező van, és nem, megvan a forráskód, csak sajnos egyátalán nem biztonságos!",
-    author: {
-      name: "Nagy Éva",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  },
-  {
-    id: 3,
-    title: "Fejlesztési Hírek",
-    timestamp: "Közzétéve tegnap 10:45-kor",
-    content:
-      "Emiatt az ügyfélkapu teljes körűen ÚJRAÍRÁSRA kerül, az összes feldobott/bedobott ötletekkel, és hibajavításokkal, addig jelenlegi ügyfélkapunk 0-24 elérhető.",
-    author: {
-      name: "Szabó Péter",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  },
-]
+interface NewsItem {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  user: {
+    name: string;
+    avatar: string;
+  };
+}
 
 export default function Home() {
-  const { data: session, status } = useSession(); 
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [serviceNumber, setServiceNumber] = useState(0);
   const [userStats, setUserStats] = useState<{ count: number; growth: number, date: string }[]>([]);
+  const [news, setNews] = useState<{ id: string; title: string; description: string; createdAt: string; user: { avatar: string; name: string } }[]>([]);
+  const [admin, setAdmin] = useState({ name: "", avatar: "" });
+  const [avatar, setAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/sign-in')
+      router.push('/sign-in');
     }
-  }, [status, router])
+  }, [status, router]);
 
   useEffect(() => {
     if (status === 'authenticated') {
       const fetchBalance = async () => {
         try {
-          const response = await fetch("/api/balance", {
-            method: "GET",
-          });
+          const response = await fetch("/api/balance", { method: "GET" });
           const data = await response.json();
           setBalance(data.balance);
           setIsLoading(false);
@@ -81,9 +58,7 @@ export default function Home() {
     if (status === 'authenticated') {
       const fetchServiceNumber = async () => {
         try {
-          const response = await fetch("/api/services/service-number", {
-            method: "GET",
-          });
+          const response = await fetch("/api/services/service-number", { method: "GET" });
           const data = await response.json();
           setServiceNumber(data.count);
           setIsLoading(false);
@@ -99,14 +74,11 @@ export default function Home() {
     if (status === 'authenticated') {
       const fetchUserStats = async () => {
         try {
-          const response = await fetch("/api/users/stats", {
-            method: "GET",
-          });
+          const response = await fetch("/api/users/stats", { method: "GET" });
           const data = await response.json();
           if (data.status === 'success') {
             setUserStats(data.data);
           }
-
           setIsLoading(false);
         } catch (error) {
           setIsLoading(false);
@@ -114,6 +86,21 @@ export default function Home() {
       };
       fetchUserStats();
     }
+  }, [status]);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get('/api/news');
+        const data: NewsItem[] = response.data;
+        setNews(data);
+        console.log(data);
+      } catch (error) {
+        console.error('Hiba a hírek lekérésekor:', error);
+      }
+    };
+
+    fetchNews();
   }, [status]);
 
   const latestStatCustomer = userStats.length > 0 ? userStats[userStats.length - 1] : { count: 0, change: 0 };
@@ -143,7 +130,7 @@ export default function Home() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6 bg-slate-900  text-foreground min-h-screen">
+      <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -202,46 +189,53 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {announcements.map((announcement) => (
-                <div 
-                  key={announcement.id} 
-                  className="group transform transition-all duration-300 hover:scale-[1.01]"
-                >
-                  <div className="flex gap-6 items-start rounded-xl p-6 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/20 hover:border-blue-500/30">
-                    <div className="relative shrink-0">
-                      <Image
-                        src={announcement.author.avatar || "/placeholder.svg"}
-                        alt={announcement.author.name}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full object-cover border-3 border-slate-700 transition-all duration-300 group-hover:border-blue-500"
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-slate-800 animate-pulse" />
-                    </div>
-                    <div className="flex-1 space-y-4">
-                      <div className="border-b border-slate-700/50 pb-4">
-                        <div className="flex justify-between items-center gap-4">
-                          <h2 className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-blue-400">
-                            {announcement.title}
-                          </h2>
-                          <time className="flex items-center text-sm text-slate-400 bg-slate-800/60 px-3 py-1 rounded-full">
-                            <Clock className="h-3.5 w-3.5 mr-2" />
-                            {announcement.timestamp}
-                          </time>
-                        </div>
-                        <p className="text-sm text-slate-400 mt-2 font-medium">{announcement.author.name}</p>
+              {news.length > 0 ? (
+                news.map((announcement) => (
+                  <div
+                    key={announcement.id}
+                    className="group transform transition-all duration-300 hover:scale-[1.01]"
+                  >
+                    <div className="flex gap-6 items-start rounded-xl p-6 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/50 shadow-lg transition-all duration-300 hover:shadow-blue-500/20 hover:border-blue-500/30">
+                      <div className="relative shrink-0 w-[60px] h-[60px]">
+                        <Image
+                          src={announcement.user.avatar}
+                          alt={announcement.user.name}
+                          className="rounded-full object-cover"
+                          fill
+                        />
                       </div>
-                      <div>
-                        <p className="text-slate-300 leading-relaxed">{announcement.content}</p>
+                      <div className="flex flex-col w-full">
+                        <div className="flex justify-between items-start">
+                          <span className="text-lg font-semibold text-white">
+                            {announcement.title}
+                          </span>
+                          <p className="text-muted-foreground text-sm whitespace-nowrap ml-4">
+                            {new Date(announcement.createdAt).toLocaleDateString('hu-HU', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                        <div className="mt-2 text-sm text-slate-300">
+                          {announcement.description}
+                        </div>
+                        <div className="mt-2 text-xs text-blue-400">
+                          Közzétette: {announcement.user.name}
+                        </div>
                       </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-12 text-slate-400">
+                  Nincsenek elérhető hírek
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
-        </Card>      
+        </Card>
       </div>
     </DashboardLayout>
-  )
+  );
 }

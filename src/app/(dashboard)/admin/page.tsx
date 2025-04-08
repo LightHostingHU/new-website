@@ -2,14 +2,14 @@ import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 import React from 'react'
 import { db } from '@/lib/db'
-import { NextResponse } from 'next/server'
+import { redirect } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 
 const AdminPage = async () => {
   const session = await getServerSession(authOptions);
   
-  if (!session?.user || !("userid" in session.user)) {
-    return new NextResponse("Unauthorized", { status: 401 });
+  if (!session?.user?.email) {
+    redirect('/sign-in');
   }
   
   const userId = session.user.id as string;

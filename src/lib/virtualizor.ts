@@ -287,7 +287,11 @@ export async function checkVirtualizorStatusAndUpdate(serverId: string) {
     const response = await getVirtualizorServerStatus(serverId);
     const vpsData = response.data as { data: Record<string, { status: { status: string } }> };
     // console.log("RESPONSE in virtualizor", vpsData)
-    const status = Number(vpsData.data[serverId].status);
+    const status = vpsData?.data?.[serverId]?.status ? Number(vpsData.data[serverId].status) : undefined;
+
+    if (status === undefined) {
+      return;
+    }
 
     // console.log("Server ID:", serverId);
     // console.log("Virtualizor status:", status);

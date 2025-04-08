@@ -86,6 +86,7 @@ model User {
   resetToken String?
   resetTokenExpires DateTime?
 
+  newsAdmin    News[]    @relation("NewsAdmin")
   services      Service[] @relation("UserServices") // Add this line
 }
 
@@ -172,6 +173,8 @@ model News {
   description String   @db.LongText
   admin_id    Int      @db.Int
   createdAt   DateTime @default(now())
+
+  admin User @relation(fields: [admin_id], references: [id], name: "NewsAdmin")
 }
 
 model Transactions {

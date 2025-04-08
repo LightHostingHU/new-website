@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 export async function GET(request: Request) {
+  const session = await getServerSession(authOptions);
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
@@ -29,7 +33,6 @@ export async function GET(request: Request) {
       body: new URLSearchParams(Object.entries(tokenParams).filter(([_, v]) => v) as [string, string][]).toString(),
     });
 
-
     const tokenData = await tokenResponse.json();
     if (!tokenResponse.ok) throw new Error(`Discord token error: ${tokenData.error}`);
 
@@ -50,6 +53,22 @@ export async function GET(request: Request) {
         },
       }
     );
+
+    const discordData = {
+      username: userData.username,
+      discriminator: userData.discriminator, 
+      avatar: userData.avatar, 
+    };
+
+    await db.user.update({
+      where: {
+        email: session?.user.email ?? undefined,
+      },
+      data: {
+        discordData: discordData,
+        discord: userData.id, 
+      },
+    });
 
 
     const jwt = require("jsonwebtoken");
@@ -79,6 +98,7 @@ export async function GET(request: Request) {
 
     return response;
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Hiba történt a Discord hitelesítése során." }, { status: 500 });
   }
 }
