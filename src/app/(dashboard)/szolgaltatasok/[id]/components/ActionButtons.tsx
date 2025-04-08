@@ -38,9 +38,11 @@ interface ActionButtonsProps {
     };
     onRestartClick: () => void;
     onConfigClick: () => void;
+    onExtensionServiceClick: () => void;
+    onCancelServiceClick: () => void;
 }
 
-export default function ActionButtons({ service, onRestartClick, onConfigClick }: ActionButtonsProps) {
+export default function ActionButtons({ service, onRestartClick, onConfigClick, onExtensionServiceClick, onCancelServiceClick }: ActionButtonsProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -63,6 +65,7 @@ export default function ActionButtons({ service, onRestartClick, onConfigClick }
                     label="Szolgáltatás hosszabbítása"
                     tooltip="Hosszabbítsa meg előfizetését kedvezményes áron"
                     className="bg-green-500 hover:bg-green-600"
+                    onClick={onExtensionServiceClick}
                 />
             </div>
 
@@ -81,12 +84,13 @@ export default function ActionButtons({ service, onRestartClick, onConfigClick }
                     tooltip="Figyelem: A lemondás végleges művelet!"
                     variant="outline"
                     className="border-red-200 hover:bg-red-500 hover:text-white"
+                    onClick={onCancelServiceClick}
                 />
             </div>
 
             <div className="grid grid-cols-1 gap-4">
                 <a
-                    href={service.type === 'game' ? 'https://panel.lighthosting.hu' : 'https://vps.lighthosting.hu'}
+                    href={service.type === 'game' ? 'https://dash.lighthosting.hu/' : 'https://vm.lighthosting.hu:4083/'}
                     target="_blank"
                     rel="noopener noreferrer"
                 >

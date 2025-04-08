@@ -62,7 +62,7 @@ interface ResourceMonitorProps {
 }
 
 export default function ResourceMonitor({ service }: ResourceMonitorProps) {
-    console.log("ResourceMonitor component rendered with service:", service);
+    // console.log("ResourceMonitor component rendered with service:", service);
     const { resourceUsage, memoryUsagePercent, diskUsagePercent, fetchResources } = useResourceMonitor(service);
 
     return (

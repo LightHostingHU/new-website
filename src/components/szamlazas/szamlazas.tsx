@@ -48,7 +48,6 @@ export function Szamlazas() {
                 try {
                     setIsLoading(true);
 
-                    // Balance fetch
                     const balanceResponse = await fetch("/api/balance", {
                         method: "GET",
                     });
@@ -60,7 +59,7 @@ export function Szamlazas() {
                     });
                     const transactionsData = await transactionsResponse.json();
                     setTransactions(transactionsData);
-                    console.log(transactionsData)
+                    // console.log(transactionsData)
 
                     setIsLoading(false);
                 } catch (error) {

@@ -12,20 +12,22 @@ export async function GET(request: NextRequest) {
         }
 
         const searchParams = request.nextUrl.searchParams;
-        const serviceName = searchParams.get('name');
+        const serviceId = searchParams.get('name');
+        // console.log("Service ID:", serviceId);
 
-        if (!serviceName) {
+        if (!serviceId) {
             return NextResponse.json({ error: 'Service type is required' }, { status: 400 });
         }
 
         const serviceList = await db.serviceList.findMany({
             where: {
-                name: serviceName
+                id: Number(serviceId)
             },
             orderBy: {
                 id: 'asc'
             }
         });
+        // console.log("Service List:", serviceList);
 
         const formattedServices = serviceList.flatMap(service => {
             const configs = JSON.parse(service.options);

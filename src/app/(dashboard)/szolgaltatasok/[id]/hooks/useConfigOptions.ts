@@ -19,6 +19,7 @@ interface ServiceData {
     service_name: string;
     type: string;
     price: number;
+    service_id: number;
     more_info: {
         cpu: number;
         memory: number;
@@ -38,7 +39,11 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
         if (!service) return;
 
         try {
-            const response = await axios.get(`/api/services/config-options?name=${service.service_name}`);
+            // console.log("Fetching config options for service:", service);
+            const encodedServiceName = encodeURIComponent(service.service_id);
+            // console.log("Encoded service name:", encodedServiceName);
+            const response = await axios.get(`/api/services/config-options?name=${encodedServiceName}`);
+            // console.log("Response:", response.data);
             if (response.status === 200) {
                 const data = response.data as { formattedOptions: ConfigOption[] }[];
                 const dataOther = response.data as { other: any }[];
@@ -59,7 +64,7 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
                     initialFormData[option.label] = option.default || option.min;
                 });
 
-                console.log('Initial Form Data:', initialFormData);
+                // console.log('Initial Form Data:', initialFormData);
                 setConfigOptions(filteredOptions);
                 setConfigFormData(initialFormData);
             }
@@ -74,14 +79,12 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
 
         const newFormData: { [key: string]: any } = {};
 
-        // RAM beállítása
         const ramOption = configOptions.find(opt => opt.label === "Szerver ram");
         if (ramOption) {
             const memoryValue = service.more_info.memory;
             newFormData["Szerver ram"] = memoryValue > 1024 ? memoryValue : memoryValue * 1024;
         }
 
-        // Tárhely beállítása
         if (service.type !== 'vps') {
             const storageOption = configOptions.find(opt => opt.label === "Szerver tárhely");
             if (storageOption) {
@@ -113,12 +116,11 @@ export default function useConfigOptions(service: ServiceData | null, onSuccess?
         let price = service.price || 0;
 
         configOptions.forEach(option => {
-            if (option.options) return; // Az opciók listája nem befolyásolja az árat
+            if (option.options) return;
 
             const currentValue = formData[option.label] || 0;
             const defaultValue = option.default || 0;
 
-            // Csak a default-tól való eltérést számoljuk
             if (currentValue > defaultValue) {
                 const units = currentValue - defaultValue;
                 const additionalPrice = (units / (option.step || 1)) * option.price;

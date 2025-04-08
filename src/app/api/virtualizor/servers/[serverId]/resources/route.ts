@@ -11,8 +11,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const serverId = (await context.params).serverId;
 
     try {
+        // console.log("SERVER ID 14", serverId)
         const data = await getVirtualizorServerResourceUsage(serverId);
-        console.log(data)
+        // console.log(data)
         if (data) {
             return NextResponse.json(data);
         } else {

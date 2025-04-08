@@ -14,7 +14,6 @@ const PTERODACTYL_CLIENT_API_KEY =
 const PTERODACTYL_CLIENT_API_URL =
   process.env.PTERODACTYL_CLIENT_API_URL;
 
-// Pterodactyl felhasználó ellenőrzése
 export async function checkPterodactylUser(email: string) {
   const url = new URL(`${PTERODACTYL_API_URL}/users`);
   url.searchParams.append("filter[email]", email);
@@ -29,7 +28,6 @@ export async function checkPterodactylUser(email: string) {
   return data.data.length > 0 ? data.data[0] : null;
 }
 
-// Pterodactyl felhasználó ellenőrzése vagy létrehozása
 export async function checkOrCreatePterodactylUser(email: any) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -139,10 +137,13 @@ export async function createPterodactylServer(
       }
     );
 
+    
+
     if (response.status === 201) {
       return {
         pterodactyl_id: response.data.attributes.identifier,
         panel_id: response.data.attributes.id,
+
         success: true,
         message: "Szerver létrehozva sikeresen!",
       };
@@ -317,7 +318,7 @@ export async function getPterodactylServerInfo(pterodactyl_id: string) {
 
 export async function getPterodactylServerStatus(serverId: string) {
   try{
-    console.log("serverId", serverId);
+    // console.log("serverId", serverId);
     const apiKey = process.env.PTERODACTYL_CLIENT_API_KEY;
     const apiUrl = process.env.PTERODACTYL_API_CLIENT_URL;
 
@@ -331,7 +332,7 @@ export async function getPterodactylServerStatus(serverId: string) {
     });
 
     const json = await res.json();
-    return json?.attributes?.current_state; // e.g., "running", "offline", "starting"
+    return json?.attributes?.current_state; 
   } catch (error) {
     console.error("Error fetching server status:", error);
     throw error;
@@ -384,7 +385,6 @@ export async function updateServiceConfiguration(
     const serverDetailsRequest = await getServerDetails(panel_id);
     const server = serverDetailsRequest.server;
 
-    // Payload összeállítása
     const payload = {
       allocation: server.allocation,
       memory: vpsConfiguration.ram,
@@ -433,6 +433,34 @@ export async function updateServiceConfiguration(
     return {
       success: false,
       error: errorMessage
+    };
+  }
+}
+
+export async function deletePterodactylServer(pterodactyl_id: string) {
+  const apiKey = process.env.PTERODACTYL_API_KEY;
+  const apiUrl = process.env.PTERODACTYL_API_URL;
+
+  if (!apiKey || !apiUrl) {
+    throw new Error("Pterodactyl API configuration is missing");
+  }
+
+  try {
+    const response = await axios.delete(`${apiUrl}/servers/${pterodactyl_id}`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    return {
+      message: "Szerver sikeresen törölve.",
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      error_message: "Váratlan hiba történt a szerver törölés során.",
     };
   }
 }

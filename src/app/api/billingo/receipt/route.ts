@@ -15,10 +15,10 @@ export async function POST(req: NextRequest): Promise<Response> {
             type: "receipt",
             payment_method: "bankcard",
             currency: "HUF",
-            block_id: "279699", // ezt állítsd be nálad megfelelőre
+            block_id: process.env.BILLINGO_BLOCK_ID, 
             electronic: true,
-            fulfillment_date: new Date().toISOString(), // vagy fix dátum pl.: "2025-04-07"
-            vat: "AAM", // Alanyi adómentes
+            fulfillment_date: new Date().toISOString(), 
+            vat: "AAM",
             items: [
                 {
                     name: "Egyenleg feltöltés",

@@ -3,7 +3,6 @@ import { db } from '@/lib/db';
 
 export async function GET() {
     try {
-        // Lekérjük az adatokat, csoportosítva év-hónap szerint
         const userStats = await db.user.groupBy({
             by: ['createdAt'],
             _count: {

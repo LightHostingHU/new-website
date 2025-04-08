@@ -31,7 +31,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       html,
       text: `Please reset your password by visiting this link: ${resetLink}\n\nThis link expires in 1 hour.`,
     });
-    
+
   } catch (error) {
     console.error("Error sending email:", error);
     throw new Error("Failed to send email");
@@ -50,7 +50,7 @@ export async function sendVirtualizorRegistrationEmail(title: string, email: str
 
     const emailHtml = replace(
       readFileSync(templatePath, "utf-8"),
-      {title, fname, lname, newpass, email }
+      { title, fname, lname, newpass, email }
     );
 
     await transporter.sendMail({
@@ -64,6 +64,40 @@ export async function sendVirtualizorRegistrationEmail(title: string, email: str
     throw new Error("Failed to send email");
   }
 }
+
+export async function sendServiceCancellationEmail(user: any, service: any) {
+  const templatePath = path.join(
+    process.cwd(),
+    "public",
+    "assets",
+    "emails",
+    "message.html"
+  );
+
+  const emailHtml = readFileSync(templatePath, "utf-8");
+
+  const title = "Szolgáltatás Leállítási Értesítés";
+  const fname = user.firstname;
+  const lname = user.lastname;
+  const email = user.email;
+  const message = `Kedves ${fname} ${lname},\n\nA szolgáltatásod a következő időpontban leállításra kerül. Ha bármilyen kérdésed van, keresd bátran ügyfélszolgálatunkat!`;
+
+  const finalHtml = emailHtml.replace('{{title}}', title).replace('{{message}}', message);
+
+
+  try {
+    await transporter.sendMail({
+      from: `"${process.env.EMAIL_FROM}" <${process.env.EMAIL_SERVER_USER}>`,
+      to: email,
+      subject: `Szolgáltatás Leállítási Értesítés`,
+      html: finalHtml,
+    });
+    // console.log("E-mail sikeresen elküldve!");
+  } catch (error) {
+    console.error("Hiba történt az e-mail küldésekor:", error);
+  }
+}
+
 
 function replace(template: string, values: { [key: string]: string }): string {
   return Object.entries(values).reduce(

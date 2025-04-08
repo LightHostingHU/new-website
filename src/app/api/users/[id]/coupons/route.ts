@@ -61,7 +61,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
       data: {
         user_id: parseInt(userId),
         code,
-        discount,
+        discount: Number(discount),
         expire: new Date(expiryDate),
         is_active: isActive,
       },

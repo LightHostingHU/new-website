@@ -2,11 +2,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import useConfigOptions from '../hooks/useConfigOptions';
+import { useCallback } from 'react';
 
 interface ConfigDialogProps {
     service: {
         id: number;
         type: string;
+        service_name: string;
         price: number;
         more_info: {
             cpu: number;
@@ -21,6 +23,11 @@ interface ConfigDialogProps {
 }
 
 export default function ConfigDialog({ service, isOpen, onOpenChange, onSuccess }: ConfigDialogProps) {
+    const handleSuccess = useCallback(() => {
+        onOpenChange(false);
+        if (onSuccess) onSuccess();
+    }, [onOpenChange, onSuccess]);
+
     const {
         configOptions,
         configFormData,
@@ -28,10 +35,8 @@ export default function ConfigDialog({ service, isOpen, onOpenChange, onSuccess 
         isUpdating,
         handleConfigChange,
         updateServiceConfiguration
-    } = useConfigOptions({ ...service, service_name: service.type }, () => {
-        onOpenChange(false);
-        if (onSuccess) onSuccess();
-    });
+    } = useConfigOptions(service, handleSuccess);
+
     const handleSave = async () => {
         const success = await updateServiceConfiguration();
         if (success) {

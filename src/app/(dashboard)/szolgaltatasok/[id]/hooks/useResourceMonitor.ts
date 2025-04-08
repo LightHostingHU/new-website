@@ -68,6 +68,7 @@ export default function useResourceMonitor(service: ServiceData | null) {
             try {
                 setResourceUsage(prev => ({ ...prev, isLoading: true, error: undefined }));
 
+                // console.log("SZERVER ID 71", serverId)
                 const res = await axios.get(`/api/virtualizor/servers/${serverId}/resources`);
 
                 if (res.status !== 200) {
@@ -114,17 +115,15 @@ export default function useResourceMonitor(service: ServiceData | null) {
     const startMonitoring = useCallback(() => {
         if (!service?.server_id) return;
 
-        // Első lekérdezés
         fetchResources(service.server_id);
 
-        // Periodikus lekérdezés
         const intervalId = setInterval(async () => {
             try {
                 await fetchResources(service.server_id);
             } catch (error) {
                 console.error("Monitoring error:", error);
             }
-        }, 30000); // 30 másodpercenként frissítés
+        }, 30000);
 
         return () => clearInterval(intervalId);
     }, [service?.server_id, fetchResources]);

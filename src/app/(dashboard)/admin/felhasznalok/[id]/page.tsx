@@ -92,9 +92,12 @@ export default function UserPage() {
                     });
 
                     const couponsResponse = await axios.get(`/api/users/${id}/coupons`);
+                    const servicesResponse = await axios.get(`/api/users/${id}/services`);
+                    
                     setUser(prev => ({
                         ...prev,
-                        coupons: Array.isArray(couponsResponse.data) ? couponsResponse.data as Coupon[] : []
+                        coupons: Array.isArray(couponsResponse.data) ? couponsResponse.data as Coupon[] : [],
+                        services: Array.isArray(servicesResponse.data) ? servicesResponse.data as Service[] : []
                     }));
 
                     setIsLoading(false);

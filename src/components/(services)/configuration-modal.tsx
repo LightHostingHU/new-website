@@ -23,11 +23,12 @@ import { Slider } from "@/components/ui/slider";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface Coupon {
     code: string;
     discount: number;
-    is_active: number;
+    is_active: boolean;
 }
 
 const calculatePrice = async (
@@ -210,11 +211,12 @@ export function ConfigurationModal({
     };
 
     const handleApplyCoupon = async () => {
+        // console.log("COUPON BUTOTN")
         try {
             const response = await axios.get<{ coupon: Coupon }>(
-                `${process.env.NEXT_PUBLIC_API_URL}/coupons/validate/${couponInput}`
+                `/api/coupons/validate/${couponInput}`
             );
-            if (response.data.coupon.is_active === 1) {
+            if (response.data.coupon.is_active === true) {
                 setCoupon(response.data.coupon);
                 setCouponApplied(true);
             } else {

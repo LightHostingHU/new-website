@@ -40,7 +40,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
                 id: Number(userId)
             },
             data: {
-                money: money
+                money: Number(money)
             }
         });
 

@@ -24,9 +24,8 @@ export async function POST(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Szerver újraindítása
     const data = await changePterodactylPowerState(serverId.toString(), "restart");
-    console.log('data in restart' ,data);
+    // console.log('data in restart' ,data);
 
     const service = await db.service.findFirst({
       where: {
@@ -39,7 +38,6 @@ export async function POST(
       return new NextResponse("Not found", { status: 404 });
     }
 
-    // Állapot beállítása "restarting"-re
     await db.service.update({
       where: {
         id: service.id,

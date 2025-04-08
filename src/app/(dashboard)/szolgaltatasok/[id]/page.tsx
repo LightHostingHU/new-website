@@ -17,6 +17,8 @@ import RestartDialog from './components/RestartDialog';
 import ConfigDialog from './components/ConfigDialog';
 
 import useServiceData from './hooks/useServiceData';
+import { ServiceExtensionDialog } from './components/ServiceExtensionDialog';
+import { ServiceCancelDialog } from './components/ServiceCancelDialog';
 
 export default function ServiceDetails() {
   const {
@@ -29,6 +31,7 @@ export default function ServiceDetails() {
 
   const [isRestartDialogOpen, setIsRestartDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  const [isExtensionServiceDialogOpen, setIsExtensionServiceDialogOpen] = useState(false);
 
   if (error) {
     return (
@@ -117,6 +120,8 @@ export default function ServiceDetails() {
           service={service}
           onRestartClick={() => setIsRestartDialogOpen(true)}
           onConfigClick={() => setIsConfigDialogOpen(true)}
+          onExtensionServiceClick={() => setIsExtensionServiceDialogOpen(true)}
+          onCancelServiceClick={() => setIsExtensionServiceDialogOpen(true)}
         />
 
         {/* Dialógusok */}
@@ -131,6 +136,20 @@ export default function ServiceDetails() {
           isOpen={isConfigDialogOpen}
           onOpenChange={setIsConfigDialogOpen}
           onSuccess={fetchInitialServiceData}
+        />
+
+        <ServiceExtensionDialog
+          serviceId={String(service.id)}
+          isOpen={isExtensionServiceDialogOpen}
+          onClose={() => setIsExtensionServiceDialogOpen(false)}
+          price={service.price}
+        />
+
+        <ServiceCancelDialog
+          serviceId={String(service.id)}
+          isOpen={isExtensionServiceDialogOpen}
+          onClose={() => setIsExtensionServiceDialogOpen(false)}
+          price={service.price}
         />
       </div>
     </DashboardLayout>

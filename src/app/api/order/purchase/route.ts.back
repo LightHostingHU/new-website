@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (serviceType === 'game'){
-      console.log("config", config);
+      // console.log("config", config);
       if (
         !config["Szerver ram"] ||
         !config["Szerver tárhely"] ||
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         !config["CPU mag"] ||
         !config["Operációs rendszer"]
       ) {
-        console.log("Hiányzó konfigurációs adatok.")
+        // console.log("Hiányzó konfigurációs adatok.")
         return NextResponse.json(
           { success: false, message: "Hiányzó konfigurációs adatok." },
           { status: 400 }
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     let virtualizoruser;
     if (serviceType === "vps") {
       virtualizoruser = await checkOrCreateVirtualiozorUser(user.email);
-      // console.log('virtualizoruser', virtualizoruser)
+      // // console.log('virtualizoruser', virtualizoruser)
     }
 
     const userId = user.id;
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
         });
       }
     } else if (serviceType === "vps") {
-      console.log(serviceId);
+      // console.log(serviceId);
       if (!virtualizoruser) {
         return NextResponse.json(
           { success: false, message: "Virtualizor user could not be created or found." },
@@ -208,7 +208,7 @@ export async function POST(req: NextRequest) {
         parseInt(configData?.ram),
         parseInt(configData?.cpu)
       )
-      console.log('serverResponse', serverResponse)
+      // console.log('serverResponse', serverResponse)
 
       // if (!serverResponse.success) {
       //   return NextResponse.json(

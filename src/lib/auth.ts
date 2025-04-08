@@ -77,6 +77,18 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const activeBan = await db.bans.findFirst({
+          where: {
+            user_id: existingUser.id,
+          },
+        });
+
+        if (activeBan) {
+          toast(`Ki vagy tiltva az oldalról ezzel az indokkal: ${activeBan.reason}`)
+          return null;
+        }
+
+
         return {
           id: `${existingUser.id}`,
           username: existingUser.username,

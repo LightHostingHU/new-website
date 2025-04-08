@@ -1,4 +1,3 @@
-// lib/email-templates.ts
 interface ResetPasswordEmailParams {
   resetLink: string;
   supportEmail: string;

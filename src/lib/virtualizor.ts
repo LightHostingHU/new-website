@@ -135,18 +135,6 @@ export async function createVirtualizorServer(
   cpu: number
 ) {
   try {
-    // console.log('Creating Virtualizor server with params:', {
-    //   server_id: serverId,
-    //   user_id: userId,
-    //   user_email: userEmail,
-    //   osid: osids.find((item) => item.name === osId)?.osid || 0,
-    //   hostname: hostname,
-    //   storage_id: storageId,
-    //   storage_limit: storageLimit / 1024,
-    //   storage_uuid: storageUUID,
-    //   ram: ram,
-    //   core: cpu
-    // });
 
     interface CreateVPSResponse {
       status: string;
@@ -161,6 +149,7 @@ export async function createVirtualizorServer(
           cpu: string;
           disk: string;
           vpsid: string;
+          vps_name: string;
         };
       };
     }
@@ -194,6 +183,7 @@ export async function createVirtualizorServer(
       return {
         status: "error",
         error_message: vm.message ,
+        data: response.data
       };
     }
     return {
@@ -222,6 +212,7 @@ export async function getVirtualizorServerResourceUsage(serverId: string) {
       }
     );
 
+    // console.log("SERVER ID 215", serverId)
     checkVirtualizorStatusAndUpdate(serverId);
     return {
       status: "success",
@@ -275,6 +266,8 @@ export async function getVirtualizorServerStatus(serverId: string) {
         },
       }
     );
+
+    // console.log(response.data)
     return {
       status: "success",
       message: "Server status retrieved successfully",
@@ -290,12 +283,14 @@ export async function checkVirtualizorStatusAndUpdate(serverId: string) {
   let maxAttempts = 10;
 
   for (let i = 0; i < maxAttempts; i++) {
+    // console.log("SERVER ID", serverId)
     const response = await getVirtualizorServerStatus(serverId);
     const vpsData = response.data as { data: Record<string, { status: { status: string } }> };
+    // console.log("RESPONSE in virtualizor", vpsData)
     const status = Number(vpsData.data[serverId].status);
 
-    console.log("Server ID:", serverId);
-    console.log("Virtualizor status:", status);
+    // console.log("Server ID:", serverId);
+    // console.log("Virtualizor status:", status);
 
     if (status === 1) {
       await db.service.update({
@@ -317,6 +312,42 @@ export async function checkVirtualizorStatusAndUpdate(serverId: string) {
       break;
     }
 
-    await wait(5000); // 5 mp várás
+    await wait(5000);
+  }
+}
+
+export async function deleteVirtualizorServer(serverId: number) {
+  try {
+    const response = await axios.post(
+      `${virtualizorApiURL}/deleteVPS.php`,
+      {
+        vpsid: serverId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+
+    // console.log("Virtualizor response:", response.data);
+
+
+    const responseData = response.data as { status: string; message?: string };
+    if (responseData.status !== "success") {
+      return {
+        status: "error",
+        message: responseData.message || "Failed to delete server",
+      };
+    }
+
+    return {
+      status: "success",
+      message: "Server deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting server:", error);
+    return { status: "error", message: "Failed to delete server" };
   }
 }
