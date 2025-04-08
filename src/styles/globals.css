@@ -71,8 +71,18 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
   }
   body {
     @apply bg-background text-foreground;
   }
+
+  img {
+  pointer-events: none; /* Megakadályozza a kép fölé húzást */
+  user-select: none; /* Megakadályozza a kijelölést */
+  -webkit-user-drag: none; /* Safari támogatás */
+}
 }
