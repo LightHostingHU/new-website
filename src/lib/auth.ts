@@ -68,7 +68,8 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        if (!existingUser.emailVerified) {
+        console.log(existingUser)
+        if (!existingUser.verified) {
           // toast("Az email cím nincs megerősítve!")
           throw new Error("Az email cím nincs megerősítve");
           return null;

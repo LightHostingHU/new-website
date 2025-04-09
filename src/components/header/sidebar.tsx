@@ -7,15 +7,13 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import axios from "axios"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 
-import { signOut } from "next-auth/react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
+import { signOut } from "next-auth/react"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const menuItems = [
     { icon: Home, label: "Áttekintés", href: "/" },
@@ -32,49 +30,47 @@ export function Sidebar() {
     const [permissions, SetPermissions] = useState(null)
     const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false)
     const { theme, setTheme } = useTheme()
-    const [avatar, setAvatar] = useState<string | null>(null);
+    const [avatar, setAvatar] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchAvatar = async () => {
             try {
-                const response = await fetch("/api/user/profile-picture");
-                const data = await response.json();
+                const response = await fetch("/api/user/profile-picture")
+                const data = await response.json()
                 if (data.avatar) {
-                    setAvatar(data.avatar);
+                    setAvatar(data.avatar)
                 }
             } catch (error) {
-                console.error("Error fetching avatar:", error);
+                console.error("Error fetching avatar:", error)
             }
-        };
+        }
 
-        fetchAvatar();
+        fetchAvatar()
     }, [])
 
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.push('/sign-in');
+            router.push('/sign-in')
         }
-    }, [status, session, router]);
+    }, [status, session, router])
 
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await fetch("/api/users/permissions");
-                const data = await response.json();
-                SetPermissions(data.permissions);
+                const response = await fetch("/api/users/permissions")
+                const data = await response.json()
+                SetPermissions(data.permissions)
             } catch (error) {
-                console.error("Permissions fetch error:", error);
+                console.error("Permissions fetch error:", error)
             }
         }
 
         if (status === 'authenticated') {
-            fetchPermissions();
-
-            const interval = setInterval(fetchPermissions, 10000);
-
-            return () => clearInterval(interval);
+            fetchPermissions()
+            const interval = setInterval(fetchPermissions, 10000)
+            return () => clearInterval(interval)
         }
-    }, [status]);
+    }, [status])
 
     return (
         <div className="flex flex-col h-full bg-white dark:bg-slate-900 border-r border-zinc-700">
@@ -137,7 +133,7 @@ export function Sidebar() {
                 </nav>
             </div>
             <div className="mt-auto p-6 border-t border-zinc-700">
-                <section className="space-y-2 ">
+                <section className="space-y-2">
                     <Button
                         variant="outline"
                         className="w-full justify-start"
@@ -146,7 +142,11 @@ export function Sidebar() {
                         <MessageSquare className="h-5 w-5 mr-3" />
                         Discord
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => window.open("https://vm.lighthosting.hu:4083", "_blank")}>
+                    <Button 
+                        variant="outline" 
+                        className="w-full justify-start" 
+                        onClick={() => window.open("https://vm.lighthosting.hu:4083", "_blank")}
+                    >
                         <Monitor className="h-5 w-5 mr-3" />
                         VM Panel
                     </Button>
