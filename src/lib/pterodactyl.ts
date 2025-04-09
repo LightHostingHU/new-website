@@ -354,7 +354,7 @@ async function getServerDetails(pterodactyl_id: string) {
 
         return {
             message: "Szerver adatai sikeresen lekérve.",
-            server: response.data.attributes,
+            server: (response.data as any).attributes,
         };
     } catch (error) {
         return {

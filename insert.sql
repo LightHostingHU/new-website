@@ -31,7 +31,7 @@ VALUES (
     );
 
 -- Tábla adatainak mentése lighthosting.servicelist: ~15 rows (hozzávetőleg)
-INSERT IGNORE INTO `servicelist` (
+INSERT IGNORE INTO `ServiceList` (
         `id`,
         `name`,
         `image`,

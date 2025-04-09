@@ -4,6 +4,7 @@ import axios from 'axios';
 
 interface ServiceData {
     server_id: string;
+    service_id: number;
     id: number;
     service_name: string;
     type: string;

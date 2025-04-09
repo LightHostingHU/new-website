@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     try {
         const balance = await db.user.findFirst({
             where: {
-                id: session?.user.userid,
+                id: Number(session?.user.id),
             },
             select: {
                 money: true,

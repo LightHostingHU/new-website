@@ -1,10 +1,10 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { toast } from "sonner";
 
-export default function VerifyEmailPage() {
+function VerifyEmailPageContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
@@ -42,5 +42,14 @@ export default function VerifyEmailPage() {
     <div className="flex items-center justify-center h-screen">
       {loading ? <p>Email megerősítés folyamatban...</p> : <p>Átirányítás...</p>}
     </div>
+  );
+}
+
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <VerifyEmailPageContent />
+    </Suspense>
   );
 }

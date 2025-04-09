@@ -92,7 +92,7 @@ export default function Home() {
     const fetchNews = async () => {
       try {
         const response = await axios.get('/api/news');
-        const data: NewsItem[] = response.data;
+        const data = response.data as NewsItem[];
         setNews(data);
         console.log(data);
       } catch (error) {

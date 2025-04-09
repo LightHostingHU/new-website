@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 interface ConfigDialogProps {
     service: {
         id: number;
+        service_id: number;
         type: string;
         service_name: string;
         price: number;

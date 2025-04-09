@@ -27,8 +27,8 @@ interface ServerDetailsProps {
             cpu: number;
             memory: number;
             storage: number;
-            storage_unit: string;
-            memory_unit: string;
+            storage_unit?: string;
+            memory_unit?: string;
         };
     };
 }

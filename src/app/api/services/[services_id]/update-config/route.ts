@@ -5,9 +5,14 @@ import { db } from '@/lib/db';
 import axios from 'axios';
 import { updateServiceConfiguration } from '@/lib/pterodactyl';
 
+type RouteContext = {
+    params: Promise<{
+        services_id: string;
+    }>
+};
 export async function POST(
     request: NextRequest,
-    { params }: { params: { services_id: string } }
+    context: RouteContext
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -16,6 +21,7 @@ export async function POST(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        const params = context.params;
         const { services_id } = await params;
         const serviceId = parseInt(services_id);
 

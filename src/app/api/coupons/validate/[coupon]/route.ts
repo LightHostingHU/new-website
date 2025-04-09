@@ -2,9 +2,9 @@ import { db } from "@/lib/db";
 import { NextRequest } from "next/server";
 
 type RouteContext = {
-    params: {
+    params: Promise<{
         coupon: string;
-    };
+    }>
 }
 
 export async function GET(_: NextRequest, context: RouteContext) {
