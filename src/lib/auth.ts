@@ -60,11 +60,17 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          toast("Felhasználó nem található");
+          throw new Error("Felhasználó nem található");
           return null;
         }
 
         if (!existingUser.password) {
+          return null;
+        }
+
+        if (!existingUser.emailVerified) {
+          // toast("Az email cím nincs megerősítve!")
+          throw new Error("Az email cím nincs megerősítve");
           return null;
         }
 
@@ -84,8 +90,8 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (activeBan) {
-          toast(`Ki vagy tiltva az oldalról ezzel az indokkal: ${activeBan.reason}`)
-          return null;
+          throw new Error(`Ki vagy tiltva az oldalról ezzel az indokkal: ${activeBan.reason}`);
+
         }
 
 

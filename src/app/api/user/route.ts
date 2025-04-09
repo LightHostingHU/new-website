@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
 import * as z from "zod";
+import { generateToken } from "@/lib/auth";
+import { sendVerificationEmail } from "@/lib/email";
 
 const userSchema = z.object({
   username: z.string().min(1, "Username is required").max(100),
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
     });
     if (existingUserByEmail) {
       return NextResponse.json(
-        { user: null, message: "Ezzel az emailc ímmel már regisztráltak" },
+        { user: null, message: "Ezzel az email címmel már regisztráltak" },
         { status: 409 }
       );
     }
@@ -40,6 +42,7 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await hash(password, 10);
+    const verificationToken = generateToken();
     const newUser = await db.user.create({
       data: {
         username,
@@ -49,10 +52,13 @@ export async function POST(req: Request) {
         lastname,
         avatar: "", 
         discord: "",
+        verificationToken
       },
     });
+
     const { password: newUserPassword, ...rest } = newUser;
 
+    await sendVerificationEmail(email, verificationToken);
     return NextResponse.json(
       { user: rest, message: "Fiók sikeresen létrehozva" },
       { status: 201 }

@@ -131,7 +131,7 @@ export default function Home() {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6 bg-slate-900 text-foreground min-h-screen">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Egyenleg</CardTitle>
@@ -141,7 +141,7 @@ export default function Home() {
               <div className="text-2xl font-bold">{formatNumber(balance)} Ft</div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
+          {/* <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Aktív VPS-ek</CardTitle>
               <Server className="h-4 w-4 text-primary" />
@@ -149,7 +149,7 @@ export default function Home() {
             <CardContent>
               <div className="text-2xl font-bold">{serviceNumber}</div>
             </CardContent>
-          </Card>
+          </Card> */}
           <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Összes Felhasználók száma</CardTitle>
@@ -165,7 +165,7 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
+          {/* <Card className="bg-slate-800 hover:bg-slate-800/80 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Összes megvásárolt szolgáltatások</CardTitle>
               <Users className="h-4 w-4 text-primary" />
@@ -176,7 +176,7 @@ export default function Home() {
                 <span className="text-green-500 mr-1">↑</span>1 az előző hónaphoz képest
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

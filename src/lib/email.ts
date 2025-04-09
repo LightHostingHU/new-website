@@ -98,6 +98,33 @@ export async function sendServiceCancellationEmail(user: any, service: any) {
   }
 }
 
+export async function sendVerificationEmail(email: any, verificationToken: any) {
+  const templatePath = path.join(process.cwd(),
+    "public",
+    "assets",
+    "emails",
+    "message.html");
+
+    const emailHtml = readFileSync(templatePath, "utf-8");
+
+    const title = "Regisztráció megerősítése";
+  const message = `Kedves Felhasználó!\n\nKöszönjük, hogy regisztráltál a weboldalunkra. Kérjük, kattints az alábbi linkre a regisztráció megerősítéséhez:\n\n${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verificationToken}\n\nA link érvényessége 24 óra.\n\nÜdvözlettel,\nA weboldal támogatása`;
+  const finalHtml = emailHtml.replace('{{title}}', title).replace('{{message}}', message);
+
+  try {
+    await transporter.sendMail({
+      from: `"${process.env.EMAIL_FROM}" <${process.env.EMAIL_SERVER_USER}>`,
+      to: email,
+      subject: `Regisztráció megerősítése`,
+      html: finalHtml,
+    });
+    // console.log("E-mail sikeresen elküldve!");
+  } catch (error) {
+    console.error("Hiba történt az e-mail küldésekor:", error);
+  }
+
+}
+
 
 function replace(template: string, values: { [key: string]: string }): string {
   return Object.entries(values).reduce(

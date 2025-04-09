@@ -47,7 +47,7 @@ const SignInForm = () => {
       });
 
       if (signInData?.error) {
-        toast('Hibás felhasználónév/email vagy jelszó');
+        toast.error(signInData.error); 
       } else {
         router.push('/');
       }
