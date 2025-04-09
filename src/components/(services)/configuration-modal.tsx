@@ -200,11 +200,11 @@ export function ConfigurationModal({
                 toast.success("Sikeres vásárlás!");
             } else if (responseData.status == "not_enough_money") {
                 toast.error("Nincs elegendő egyenleg a vásárláshoz");
-            } else {
-                console.error("Hiba történt a konfiguráció elküldésekor", responseData);
+            } else  {
+                toast.error("Ilyen konfigurációval nem tudsz VPS-t rendelni.");
             }
         } catch (error) {
-            setToastMessage("Hiba történt a konfiguráció elküldésekor");
+            toast.error("Hiba történt a megrendelés során.");
         }
         setIsSubmitting(false);
         onClose();

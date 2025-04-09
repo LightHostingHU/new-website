@@ -1,45 +1,138 @@
 <!doctype html>
 
-<html lang="hu" class="bg-gray-100">
+<html lang="hu" style="background-color: #f3f4f6;"></html>
   <head>
     <title></title>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f3f4f6;
+        font-family: 'Montserrat', sans-serif;
+      }
+      .container {
+        width: 100%;
+      }
+      .bg-purple {
+        background-color: #6b46c1;
+      }
+      .max-width {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      .border-top-purple {
+        border-top: 4px solid #6b46c1;
+      }
+      .bg-white {
+        background-color: #ffffff;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .py-4 {
+        padding: 16px 0;
+      }
+      .py-2 {
+        padding: 8px 0;
+      }
+      .px-10 {
+        padding: 0 40px;
+      }
+      .text-gray {
+        color: #4a5568;
+      }
+      .text-gray-light {
+        color: #a0aec0;
+      }
+      .text-blue {
+        color: #4299e1;
+      }
+      .text-blue:hover {
+        text-decoration: underline;
+      }
+      .text-sm {
+        font-size: 0.875rem;
+      }
+      .text-3xl {
+        font-size: 1.875rem;
+        font-weight: bold;
+      }
+      .font-bold {
+        font-weight: bold;
+      }
+      .mb-4 {
+        margin-bottom: 16px;
+      }
+      .flex {
+        display: flex;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .space-x-6 > *:not(:last-child) {
+        margin-right: 24px;
+      }
+      .w-16 {
+        width: 64px;
+      }
+      .w-8 {
+        width: 32px;
+      }
+      .h-auto {
+        height: auto;
+      }
+      .h-8 {
+        height: 32px;
+      }
+      .border-gray {
+        border-color: #718096;
+      }
+      .border-gray-light {
+        border-color: #e2e8f0;
+      }
+      .border-top {
+        border-top: 1px solid #718096;
+      }
+      .text-gray-dark {
+        color: #2d3748;
+      }
+    </style>
   </head>
-  <body class="bg-gray-100 m-0 p-0">
-    <div class="w-full">
-      <div class="bg-purple-600 w-full">
-        <div class="max-w-2xl mx-auto">
-          <div class="border-t-4 border-purple-600"></div>
+  <body>
+    <div class="container">
+      <div class="bg-purple">
+        <div class="max-width">
+          <div class="border-top-purple"></div>
         </div>
       </div>
 
-      <div class="bg-white w-full">
-        <div class="max-w-2xl mx-auto">
+      <div class="bg-white">
+        <div class="max-width">
           <div class="text-center py-4">
             <a href="https://lighthosting.hu" target="_blank">
-              <img src="https://cdn.lighthosting.hu/services/images/logo.png" alt="Logo" class="w-16 h-auto mx-auto" />
+              <img src="https://cdn.lighthosting.hu/services/images/logo_mini.png" alt="Logo" class="w-16 h-auto" />
             </a>
           </div>
         </div>
       </div>
 
-      <div class="bg-gray-100 w-full py-2"></div>
+      <div style="background-color: #f3f4f6;" class="py-2"></div>
 
-      <div class="bg-white w-full">
-        <div class="max-w-2xl mx-auto px-10 py-4">
-          <h1 class="text-3xl font-bold text-gray-600 text-center mb-4">{{title}}</h1>
-          <div class="text-gray-600 text-base">{{message}}</div>
+      <div class="bg-white">
+        <div class="max-width px-10 py-4">
+          <h1 class="text-3xl text-gray text-center mb-4">{{title}}</h1>
+          <div class="text-gray text-base">{{message}}</div>
         </div>
       </div>
 
-      <div class="bg-gray-100 w-full py-4"></div>
+      <div style="background-color: #f3f4f6;" class="py-4"></div>
 
-      <div class="bg-gray-800 w-full">
-        <div class="max-w-2xl mx-auto">
-          <div class="border-t-4 border-purple-600"></div>
+      <div style="background-color: #2d3748;" class="w-full">
+        <div class="max-width">
+          <div class="border-top-purple"></div>
           
           <div class="flex justify-center space-x-6 py-6">
             <a href="https://dc.lighthosting.hu/" target="_blank">
@@ -54,17 +147,17 @@
           </div>
 
           <div class="px-10 py-4">
-            <p class="text-gray-400 text-sm">
+            <p class="text-gray-light text-sm">
               Ez egy automatikusan generált üzenet, kérünk, hogy ne válaszolj erre az e-mailre. Ha kérdésed van, vedd fel a kapcsolatot velük itt:
-              <a href="mailto:info@lighthosting.hu" class="text-blue-500 underline">info@lighthosting.hu</a>
+              <a href="mailto:info@lighthosting.hu" class="text-blue">info@lighthosting.hu</a>
             </p>
           </div>
 
           <div class="px-10">
-            <hr class="border-gray-600" />
+            <hr class="border-top border-gray-light" />
           </div>
 
-          <div class="text-center text-gray-400 text-sm py-8">
+          <div class="text-center text-gray-light text-sm py-8">
             LightHosting © 2025
           </div>
         </div>
