@@ -175,133 +175,150 @@ export function Szamlazas() {
     return (
         <div className={`${theme === 'dark' ? 'bg-gradient-to-b from-slate-900 to-slate-800' : 'bg-gradient-to-b from-gray-100 to-white'} min-h-screen`}>
             <div className="container mx-auto py-10 px-4">
-                <h1 className="text-4xl font-bold mb-8 text-slate-900 dark:text-slate-50">Számlázás</h1>
-                <div className="grid gap-8 md:grid-cols-2">
-                    <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                        <CardHeader className="space-y-2">
-                            <CardTitle className="text-2xl text-slate-900 dark:text-primary">Egyenleg feltöltés</CardTitle>
-                            <CardDescription className="text-slate-600 dark:text-slate-400">Tölts fel pénzt a számládra (minimum 175 Ft)</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center space-x-4">
-                                <Input
-                                    type="number"
-                                    placeholder="Összeg (Ft)"
-                                    value={amount}
-                                    min="175"
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
-                                />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button onClick={handleDialogOpen} className="bg-primary hover:bg-primary/90">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Feltöltés
-                            </Button>
-                        </CardFooter>
+            <h1 className="text-4xl font-bold mb-8 text-slate-900 dark:text-slate-50 text-center md:text-left">Számlázás</h1>
+            <div className="grid gap-8 md:grid-cols-2">
+                <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                <CardHeader className="space-y-2">
+                    <CardTitle className="text-2xl text-slate-900 dark:text-primary">Egyenleg feltöltés</CardTitle>
+                    <CardDescription className="text-slate-600 dark:text-slate-400">Tölts fel pénzt a számládra (minimum 175 Ft)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                    <Input
+                        type="number"
+                        placeholder="Összeg (Ft)"
+                        value={amount}
+                        min="175"
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 w-full"
+                    />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button onClick={handleDialogOpen} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Feltöltés
+                    </Button>
+                </CardFooter>
 
-                        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-                            <DialogTrigger />
-                            <DialogContent className="bg-white dark:bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-200 dark:border-primary/20">
-                                <DialogHeader>
-                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-primary mb-4">Válassza ki a fizetési módot</h3>
-                                    <p className="text-lg text-slate-700 dark:text-primary/80">Fizetendő összeg: {formatNumber(Number(amount))} Ft</p>
-                                </DialogHeader>
-                                <div className="grid grid-cols-1 gap-4 py-6">
-                                    <Button
-                                        className="bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center space-x-3 h-14 text-lg"
-                                        onClick={() => {
-                                            handleStripeCheckout();
-                                            setDialogOpen(false);
-                                        }}
-                                    >
-                                        <CreditCard className="w-6 h-6" />
-                                        <span>Bankkártya</span>
-                                    </Button>
-                                    <Button
-                                        className="bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-3 h-14 text-lg"
-                                        onClick={() => {
-                                            handlePayPalCheckout();
-                                            setDialogOpen(false);
-                                        }}
-                                    >
-                                        <Wallet className="w-6 h-6" />
-                                        <span>PayPal</span>
-                                    </Button>
-                                </div>
-                                <DialogFooter className="space-x-4 pt-4 border-t border-slate-200 dark:border-primary/20">
-                                    <Button
-                                        variant="outline"
-                                        className="hover:bg-red-600/20 transition-colors"
-                                        onClick={() => setDialogOpen(false)}
-                                    >
-                                        Mégse
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </Card>
+                <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger />
+                    <DialogContent className="bg-white dark:bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-200 dark:border-primary/20">
+                    <DialogHeader>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-primary mb-4">Válassza ki a fizetési módot</h3>
+                        <p className="text-lg text-slate-700 dark:text-primary/80">Fizetendő összeg: {formatNumber(Number(amount))} Ft</p>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 gap-4 py-6">
+                        <Button
+                        className="bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center space-x-3 h-14 text-lg"
+                        onClick={() => {
+                            handleStripeCheckout();
+                            setDialogOpen(false);
+                        }}
+                        >
+                        <CreditCard className="w-6 h-6" />
+                        <span>Bankkártya</span>
+                        </Button>
+                        <Button
+                        className="bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-3 h-14 text-lg"
+                        onClick={() => {
+                            handlePayPalCheckout();
+                            setDialogOpen(false);
+                        }}
+                        >
+                        <Wallet className="w-6 h-6" />
+                        <span>PayPal</span>
+                        </Button>
+                    </div>
+                    <DialogFooter className="space-x-4 pt-4 border-t border-slate-200 dark:border-primary/20">
+                        <Button
+                        variant="outline"
+                        className="hover:bg-red-600/20 transition-colors w-full md:w-auto"
+                        onClick={() => setDialogOpen(false)}
+                        >
+                        Mégse
+                        </Button>
+                    </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                </Card>
 
-                    <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                        <CardHeader className="space-y-3">
-                            <CardTitle className="text-2xl text-slate-900 dark:text-primary">Számlázási összesítő</CardTitle>
-                            <CardDescription className="text-slate-600 dark:text-slate-400 text-lg">Az elmúlt 3 hónap</CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-2">
-                            <div className="flex items-center space-x-4">
-                                <div className="text-5xl font-bold text-slate-900 dark:text-primary">{formatNumber(balance)} Ft</div>
-                                <div className="text-slate-600 dark:text-slate-400 text-sm">Teljes összeg</div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                <CardHeader className="space-y-3">
+                    <CardTitle className="text-2xl text-slate-900 dark:text-primary">Számlázási összesítő</CardTitle>
+                    <CardDescription className="text-slate-600 dark:text-slate-400 text-lg">Az elmúlt 3 hónap</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-2">
+                    <div className="flex items-center space-x-4">
+                    <div className="lg:text-5xl text-3xl font-bold text-slate-900 dark:text-primary">{formatNumber(balance)} Ft</div>
+                    <div className="text-slate-600 dark:text-slate-400 text-sm">Teljes összeg</div>
+                    </div>
+                </CardContent>
+                </Card>
+            </div>
 
-                <h2 className="text-3xl font-bold mt-12 mb-6 text-slate-900 dark:text-primary">Tranzakciók</h2>
+            <h2 className="text-3xl font-bold mt-12 mb-6 text-slate-900 dark:text-primary text-center md:text-left">Tranzakciók</h2>
                 <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
                     <CardHeader>
                         <CardTitle className="text-2xl text-slate-900 dark:text-primary">Tranzakciós történet</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {transactions.length > 0 ? (
-                                transactions.map((transaction) => (
-                                    <div key={transaction.id} className="flex items-center justify-between p-5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <div className="flex items-center space-x-4">
+                        {transactions.length > 0 ? (
+                            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+                                {transactions.map((transaction) => (
+                                    <div
+                                        key={transaction.id}
+                                        className="flex flex-col sm:flex-row items-center justify-between py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                    >
+                                        <div className="flex items-center space-x-4 w-full sm:w-auto">
                                             <Calendar className="h-6 w-6 text-slate-900 dark:text-primary" />
                                             <div>
-                                                <p className="font-medium text-lg text-slate-900 dark:text-slate-200">{formatDate(transaction.createdAt)}</p>
-                                                <p className="text-sm text-slate-600 dark:text-slate-400">{transaction.paymentMethod}</p>
+                                                <p className="font-medium text-lg text-slate-900 dark:text-slate-200">
+                                                    {formatDate(transaction.createdAt)}
+                                                </p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {transaction.paymentMethod}
+                                                </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center space-x-6">
-                                            <div className="text-right">
-                                                <p className="font-medium text-lg text-slate-900 dark:text-primary">{formatNumber(transaction.amount)} Ft</p>
+                                        <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0">
+                                            <div className="text-right sm:text-left">
+                                                <p className="font-medium text-lg text-slate-900 dark:text-primary">
+                                                    {formatNumber(transaction.amount)} Ft
+                                                </p>
                                                 <Badge
                                                     variant={
-                                                        transaction.status === "paid" ? "default" :
-                                                            transaction.status === "Folyamatban" ? "secondary" :
-                                                                "destructive"
+                                                        transaction.status === "paid"
+                                                            ? "default"
+                                                            : transaction.status === "Folyamatban"
+                                                                ? "secondary"
+                                                                : "destructive"
                                                     }
                                                     className="mt-1 uppercase"
                                                 >
                                                     {transaction.status === "paid" ? "Kifizetve" : transaction.status}
                                                 </Badge>
                                             </div>
-                                            <Button variant="ghost" size="icon" className="hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                <Download onClick={() => handleDownload(transaction.billingoId)} className="h-5 w-5" />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                onClick={() => handleDownload(transaction.billingoId)}
+                                            >
+                                                <Download className="h-5 w-5" />
                                             </Button>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-8">
-                                    <p className="text-slate-500 dark:text-slate-400">Nincsenek tranzakciók</p>
-                                </div>
-                            )}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className="text-slate-500 dark:text-slate-400">Nincsenek tranzakciók</p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
+
             </div>
         </div>
     )
